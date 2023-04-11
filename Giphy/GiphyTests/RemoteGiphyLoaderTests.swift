@@ -15,17 +15,21 @@ class RemoteGiphyLoader {
     }
     
     func load() {
-        client.requestedURL = URL(string: "http://any-url.com")!
+        client.get(from: URL(string: "http://any-url.com")!)
     }
 }
 
-final class HTTPClient {
-    
-    init() {
-        
+protocol HTTPClient {
+    func get(from url: URL)
+}
+
+final class HTTPClientSpy: HTTPClient {
+    var requestedURL: URL?
+
+    func get(from url: URL) {
+        requestedURL = url
     }
     
-    var requestedURL: URL?
 }
 
 final class RemoteGiphyLoaderTests: XCTestCase {
@@ -46,8 +50,8 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     
     // MARK: - Helper
     
-    private func makeSUT() -> (RemoteGiphyLoader, HTTPClient) {
-        let client = HTTPClient()
+    private func makeSUT() -> (RemoteGiphyLoader, HTTPClientSpy) {
+        let client = HTTPClientSpy()
         let sut = RemoteGiphyLoader(client: client)
         return (sut, client)
     }
