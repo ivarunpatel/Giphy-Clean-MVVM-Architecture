@@ -11,6 +11,7 @@
 		8BB0A6A329E52A45005777A8 /* GiphyItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0A6A229E52A45005777A8 /* GiphyItem.swift */; };
 		8BB0A6A529E52D29005777A8 /* GiphyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0A6A429E52D29005777A8 /* GiphyLoader.swift */; };
 		8BB0A6AA29E52EB5005777A8 /* RemoteGiphyLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0A6A929E52EB5005777A8 /* RemoteGiphyLoaderTests.swift */; };
+		8BB0A6AD29E538F3005777A8 /* RemoteGiphyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0A6AC29E538F3005777A8 /* RemoteGiphyLoader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +30,7 @@
 		8BB0A6A229E52A45005777A8 /* GiphyItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyItem.swift; sourceTree = "<group>"; };
 		8BB0A6A429E52D29005777A8 /* GiphyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyLoader.swift; sourceTree = "<group>"; };
 		8BB0A6A929E52EB5005777A8 /* RemoteGiphyLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteGiphyLoaderTests.swift; sourceTree = "<group>"; };
+		8BB0A6AC29E538F3005777A8 /* RemoteGiphyLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteGiphyLoader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +73,8 @@
 		8BB0A68C29E51894005777A8 /* Giphy */ = {
 			isa = PBXGroup;
 			children = (
-				8BB0A6A629E52E28005777A8 /* GiphyFeature */,
+				8BB0A6AB29E538D1005777A8 /* Giphy API */,
+				8BB0A6A629E52E28005777A8 /* Giphy Feature */,
 			);
 			path = Giphy;
 			sourceTree = "<group>";
@@ -84,13 +87,21 @@
 			path = GiphyTests;
 			sourceTree = "<group>";
 		};
-		8BB0A6A629E52E28005777A8 /* GiphyFeature */ = {
+		8BB0A6A629E52E28005777A8 /* Giphy Feature */ = {
 			isa = PBXGroup;
 			children = (
 				8BB0A6A229E52A45005777A8 /* GiphyItem.swift */,
 				8BB0A6A429E52D29005777A8 /* GiphyLoader.swift */,
 			);
-			path = GiphyFeature;
+			path = "Giphy Feature";
+			sourceTree = "<group>";
+		};
+		8BB0A6AB29E538D1005777A8 /* Giphy API */ = {
+			isa = PBXGroup;
+			children = (
+				8BB0A6AC29E538F3005777A8 /* RemoteGiphyLoader.swift */,
+			);
+			path = "Giphy API";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -204,6 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BB0A6A529E52D29005777A8 /* GiphyLoader.swift in Sources */,
+				8BB0A6AD29E538F3005777A8 /* RemoteGiphyLoader.swift in Sources */,
 				8BB0A6A329E52A45005777A8 /* GiphyItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
