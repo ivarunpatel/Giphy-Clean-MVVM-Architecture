@@ -24,7 +24,7 @@ public class RemoteGiphyLoader {
         case connectivity
     }
     
-    public func load(completion: @escaping (Error) -> Void = { _ in }) {
+    public func load(completion: @escaping (Error) -> Void) {
         client.get(from: url) { _ in
             completion(.connectivity)
         }
