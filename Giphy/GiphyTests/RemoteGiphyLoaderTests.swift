@@ -55,6 +55,15 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         }
     }
     
+    func test_load_deliversErrorOn200HTTPCodeWithInvalidJSON() {
+        let (sut, client) = makeSUT()
+
+        expect(sut: sut, toCompleteWith: .invalidData) {
+            let invalidJSONData = Data("invalid json".utf8)
+            client.complete(withStatusCode: 200, data: invalidJSONData)
+        }
+    }
+    
     // MARK: - Helper
     
     private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (RemoteGiphyLoader, HTTPClientSpy) {
@@ -74,12 +83,12 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     }
     
     final class HTTPClientSpy: HTTPClient {
-        var messages = [(url: URL, completion: (Result<HTTPURLResponse, Error>) -> Void)]()
+        var messages = [(url: URL, completion: (Result<(Data, HTTPURLResponse), Error>) -> Void)]()
         var requestedURLs: [URL] {
             messages.map { $0.url }
         }
         
-        func get(from url: URL, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) {
+        func get(from url: URL, completion: @escaping (Result<(Data, HTTPURLResponse), Error>) -> Void) {
             messages.append((url, completion))
         }
         
@@ -87,9 +96,9 @@ final class RemoteGiphyLoaderTests: XCTestCase {
             messages[index].completion(.failure(error))
         }
         
-        func complete(withStatusCode code: Int, index: Int = 0) {
+        func complete(withStatusCode code: Int, data: Data = Data(), index: Int = 0) {
             let response = HTTPURLResponse(url: requestedURLs[index], statusCode: code, httpVersion: nil, headerFields: nil)
-            messages[index].completion(.success(response!))
+            messages[index].completion(.success((data, response!)))
         }
     }
 
