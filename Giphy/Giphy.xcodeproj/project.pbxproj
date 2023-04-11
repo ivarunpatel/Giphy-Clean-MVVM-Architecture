@@ -69,8 +69,7 @@
 		8BB0A68C29E51894005777A8 /* Giphy */ = {
 			isa = PBXGroup;
 			children = (
-				8BB0A6A229E52A45005777A8 /* GiphyItem.swift */,
-				8BB0A6A429E52D29005777A8 /* GiphyLoader.swift */,
+				8BB0A6A629E52E28005777A8 /* GiphyFeature */,
 			);
 			path = Giphy;
 			sourceTree = "<group>";
@@ -80,6 +79,15 @@
 			children = (
 			);
 			path = GiphyTests;
+			sourceTree = "<group>";
+		};
+		8BB0A6A629E52E28005777A8 /* GiphyFeature */ = {
+			isa = PBXGroup;
+			children = (
+				8BB0A6A229E52A45005777A8 /* GiphyItem.swift */,
+				8BB0A6A429E52D29005777A8 /* GiphyLoader.swift */,
+			);
+			path = GiphyFeature;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
