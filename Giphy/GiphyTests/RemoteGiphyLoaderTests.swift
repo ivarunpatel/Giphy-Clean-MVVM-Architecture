@@ -35,6 +35,16 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
     
+    func test_load_deliversErrorOnClientError() {
+        let (sut, client) = makeSUT()
+        client.error = NSError(domain: "any error", code: -1)
+        
+        var capturedError: RemoteGiphyLoader.Error?
+        sut.load(completion: { capturedError = $0 })
+        
+        XCTAssertEqual(capturedError, .connectivity)
+    }
+    
     // MARK: - Helper
     
     private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (RemoteGiphyLoader, HTTPClientSpy) {
@@ -45,9 +55,14 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     
     final class HTTPClientSpy: HTTPClient {
         var requestedURLs = [URL]()
+        var error: Error?
         
-        func get(from url: URL) {
+        func get(from url: URL, completion: (Error) -> Void) {
             requestedURLs.append(url)
+            
+            if let error = error {
+                completion(error)
+            }
         }
     }
 
