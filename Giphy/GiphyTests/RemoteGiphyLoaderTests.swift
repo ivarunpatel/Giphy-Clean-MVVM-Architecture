@@ -31,18 +31,25 @@ final class HTTPClient {
 final class RemoteGiphyLoaderTests: XCTestCase {
 
     func test_init_doesNotRequestDataFromURL() {
-        let client = HTTPClient()
-        _ = RemoteGiphyLoader(client: client)
+        let (_, client) = makeSUT()
         
         XCTAssertNil(client.requestedURL)
     }
     
     func test_load_requestDataFromURL() {
-        let client = HTTPClient()
-        let sut = RemoteGiphyLoader(client: client)
+        let (sut, client) = makeSUT()
         
         sut.load()
         
         XCTAssertNotNil(client.requestedURL)
     }
+    
+    // MARK: - Helper
+    
+    private func makeSUT() -> (RemoteGiphyLoader, HTTPClient) {
+        let client = HTTPClient()
+        let sut = RemoteGiphyLoader(client: client)
+        return (sut, client)
+    }
+
 }
