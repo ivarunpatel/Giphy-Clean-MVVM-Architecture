@@ -38,13 +38,10 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
         
-        var capturedErrors = [RemoteGiphyLoader.Error]()
-        sut.load(completion: { capturedErrors.append($0) })
-        
-        let clientError = NSError(domain: "any error", code: -1)
-        client.complete(with: clientError)
-        
-        XCTAssertEqual(capturedErrors, [.connectivity])
+        expect(sut: sut, toCompleteWith: .connectivity, on: {
+            let clientError = NSError(domain: "any error", code: -1)
+            client.complete(with: clientError)
+        })
     }
     
     func test_load_deliversErrorOnNon200HTTPResponse() {
@@ -52,11 +49,9 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { (index, code) in
-            var capturedErrors = [RemoteGiphyLoader.Error]()
-            sut.load(completion: { capturedErrors.append($0) })
-
-            client.complete(withStatusCode: code, index: index)
-            XCTAssertEqual(capturedErrors, [.invalidData], "Expected to received connectivity on error code \(code)")
+            expect(sut: sut, toCompleteWith: .invalidData) {
+                client.complete(withStatusCode: code, index: index)
+            }
         }
     }
     
@@ -66,6 +61,16 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         let client = HTTPClientSpy()
         let sut = RemoteGiphyLoader(client: client, url: url)
         return (sut, client)
+    }
+    
+    private func expect(sut: RemoteGiphyLoader, toCompleteWith expectedError: RemoteGiphyLoader.Error, on action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+        
+        var receivedErrors = [RemoteGiphyLoader.Error]()
+        sut.load(completion: { receivedErrors.append($0) })
+        
+        action()
+        
+        XCTAssertEqual(receivedErrors, [expectedError], "Expected to received \(expectedError), got \(receivedErrors) instead", file: file, line: line)
     }
     
     final class HTTPClientSpy: HTTPClient {
