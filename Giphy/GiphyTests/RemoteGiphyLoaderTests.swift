@@ -25,15 +25,6 @@ protocol HTTPClient {
     func get(from url: URL)
 }
 
-final class HTTPClientSpy: HTTPClient {
-    var requestedURL: URL?
-
-    func get(from url: URL) {
-        requestedURL = url
-    }
-    
-}
-
 final class RemoteGiphyLoaderTests: XCTestCase {
 
     func test_init_doesNotRequestDataFromURL() {
@@ -56,6 +47,15 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         let client = HTTPClientSpy()
         let sut = RemoteGiphyLoader(client: client, url: url)
         return (sut, client)
+    }
+    
+    final class HTTPClientSpy: HTTPClient {
+        var requestedURL: URL?
+        
+        func get(from url: URL) {
+            requestedURL = url
+        }
+        
     }
 
 }
