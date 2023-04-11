@@ -9,13 +9,15 @@ import XCTest
 
 class RemoteGiphyLoader {
     let client: HTTPClient
+    let url: URL
     
-    init(client: HTTPClient) {
+    init(client: HTTPClient, url: URL) {
         self.client = client
+        self.url = url
     }
     
     func load() {
-        client.get(from: URL(string: "http://any-url.com")!)
+        client.get(from: url)
     }
 }
 
@@ -50,9 +52,9 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     
     // MARK: - Helper
     
-    private func makeSUT() -> (RemoteGiphyLoader, HTTPClientSpy) {
+    private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (RemoteGiphyLoader, HTTPClientSpy) {
         let client = HTTPClientSpy()
-        let sut = RemoteGiphyLoader(client: client)
+        let sut = RemoteGiphyLoader(client: client, url: url)
         return (sut, client)
     }
 
