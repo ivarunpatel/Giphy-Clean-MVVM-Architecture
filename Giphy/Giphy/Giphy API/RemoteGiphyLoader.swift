@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol HTTPClient {
-    func get(from url: URL, completion: @escaping (Error) -> Void)
+    func get(from url: URL, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void)
 }
 
 public class RemoteGiphyLoader {
@@ -22,11 +22,17 @@ public class RemoteGiphyLoader {
     
     public enum Error: Swift.Error {
         case connectivity
+        case invalidData
     }
     
     public func load(completion: @escaping (Error) -> Void) {
-        client.get(from: url) { _ in
-            completion(.connectivity)
+        client.get(from: url) { response in
+            switch response {
+            case .failure(_):
+                completion(.connectivity)
+            default:
+                completion(.invalidData)
+            }
         }
     }
 }

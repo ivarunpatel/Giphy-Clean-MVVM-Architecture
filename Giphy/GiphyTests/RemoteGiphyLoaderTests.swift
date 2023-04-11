@@ -47,6 +47,19 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         XCTAssertEqual(capturedErrors, [.connectivity])
     }
     
+    func test_load_deliversErrorOnNon200HTTPResponse() {
+        let (sut, client) = makeSUT()
+        
+        let samples = [199, 201, 300, 400, 500]
+        samples.enumerated().forEach { (index, code) in
+            var capturedErrors = [RemoteGiphyLoader.Error]()
+            sut.load(completion: { capturedErrors.append($0) })
+
+            client.complete(withStatusCode: code, index: index)
+            XCTAssertEqual(capturedErrors, [.invalidData], "Expected to received connectivity on error code \(code)")
+        }
+    }
+    
     // MARK: - Helper
     
     private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (RemoteGiphyLoader, HTTPClientSpy) {
@@ -56,17 +69,22 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     }
     
     final class HTTPClientSpy: HTTPClient {
-        var messages = [(url: URL, completion: (Error) -> Void)]()
+        var messages = [(url: URL, completion: (Result<HTTPURLResponse, Error>) -> Void)]()
         var requestedURLs: [URL] {
             messages.map { $0.url }
         }
         
-        func get(from url: URL, completion: @escaping (Error) -> Void) {
+        func get(from url: URL, completion: @escaping (Result<HTTPURLResponse, Error>) -> Void) {
             messages.append((url, completion))
         }
         
         func complete(with error: Error, at index: Int = 0) {
-            messages[index].completion(error)
+            messages[index].completion(.failure(error))
+        }
+        
+        func complete(withStatusCode code: Int, index: Int = 0) {
+            let response = HTTPURLResponse(url: requestedURLs[index], statusCode: code, httpVersion: nil, headerFields: nil)
+            messages[index].completion(.success(response!))
         }
     }
 
