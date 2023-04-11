@@ -25,13 +25,13 @@ public class RemoteGiphyLoader {
         case invalidData
     }
     
-    public func load(completion: @escaping (Error) -> Void) {
+    public func load(completion: @escaping (Result<[GiphyItem], Error>) -> Void) {
         client.get(from: url) { response in
             switch response {
             case .failure(_):
-                completion(.connectivity)
+                completion(.failure(.connectivity))
             default:
-                completion(.invalidData)
+                completion(.failure(.invalidData))
             }
         }
     }

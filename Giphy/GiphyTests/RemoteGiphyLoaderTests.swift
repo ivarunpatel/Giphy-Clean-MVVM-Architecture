@@ -38,7 +38,7 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
         
-        expect(sut: sut, toCompleteWith: .connectivity, on: {
+        expect(sut: sut, toCompleteWith: .failure(.connectivity), on: {
             let clientError = NSError(domain: "any error", code: -1)
             client.complete(with: clientError)
         })
@@ -49,7 +49,7 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         
         let samples = [199, 201, 300, 400, 500]
         samples.enumerated().forEach { (index, code) in
-            expect(sut: sut, toCompleteWith: .invalidData) {
+            expect(sut: sut, toCompleteWith: .failure(.invalidData)) {
                 client.complete(withStatusCode: code, index: index)
             }
         }
@@ -58,7 +58,7 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     func test_load_deliversErrorOn200HTTPCodeWithInvalidJSON() {
         let (sut, client) = makeSUT()
 
-        expect(sut: sut, toCompleteWith: .invalidData) {
+        expect(sut: sut, toCompleteWith: .failure(.invalidData)) {
             let invalidJSONData = Data("invalid json".utf8)
             client.complete(withStatusCode: 200, data: invalidJSONData)
         }
@@ -72,14 +72,14 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         return (sut, client)
     }
     
-    private func expect(sut: RemoteGiphyLoader, toCompleteWith expectedError: RemoteGiphyLoader.Error, on action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(sut: RemoteGiphyLoader, toCompleteWith expectedResult: Result<[GiphyItem], RemoteGiphyLoader.Error>, on action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         
-        var receivedErrors = [RemoteGiphyLoader.Error]()
-        sut.load(completion: { receivedErrors.append($0) })
+        var receivedResult = [Result<[GiphyItem], RemoteGiphyLoader.Error>]()
+        sut.load(completion: { receivedResult.append($0) })
         
         action()
         
-        XCTAssertEqual(receivedErrors, [expectedError], "Expected to received \(expectedError), got \(receivedErrors) instead", file: file, line: line)
+        XCTAssertEqual(receivedResult, [expectedResult], "Expected to receive \(expectedResult), got \(receivedResult) instead", file: file, line: line)
     }
     
     final class HTTPClientSpy: HTTPClient {

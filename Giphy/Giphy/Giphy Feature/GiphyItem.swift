@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct GiphyItem {
+public struct GiphyItem: Equatable {
     public let id: String
     public let title: String
     public let dateTime: String
@@ -21,7 +21,7 @@ struct GiphyItem {
     }
 }
 
-struct GiphyImage {
+public struct GiphyImage: Equatable {
     public let original: GiphyImageMetadata
     public let small: GiphyImageMetadata
     
@@ -31,7 +31,7 @@ struct GiphyImage {
     }
 }
 
-struct GiphyImageMetadata {
+public struct GiphyImageMetadata: Equatable {
     public let height: Int
     public let width: Int
     public let url: URL
