@@ -38,13 +38,13 @@ final class RemoteGiphyLoaderTests: XCTestCase {
     func test_load_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
         
-        var capturedError: RemoteGiphyLoader.Error?
-        sut.load(completion: { capturedError = $0 })
+        var capturedErrors = [RemoteGiphyLoader.Error]()
+        sut.load(completion: { capturedErrors.append($0) })
         
         let clientError = NSError(domain: "any error", code: -1)
         client.complete(with: clientError)
         
-        XCTAssertEqual(capturedError, .connectivity)
+        XCTAssertEqual(capturedErrors, [.connectivity])
     }
     
     // MARK: - Helper
