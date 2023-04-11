@@ -42,7 +42,7 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         sut.load(completion: { capturedError = $0 })
         
         let clientError = NSError(domain: "any error", code: -1)
-        client.completions[0](clientError)
+        client.complete(with: clientError)
         
         XCTAssertEqual(capturedError, .connectivity)
     }
@@ -62,6 +62,10 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         func get(from url: URL, completion: @escaping (Error) -> Void) {
             requestedURLs.append(url)
             completions.append(completion)
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            completions[index](error)
         }
     }
 
