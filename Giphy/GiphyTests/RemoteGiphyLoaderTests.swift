@@ -64,6 +64,15 @@ final class RemoteGiphyLoaderTests: XCTestCase {
         }
     }
     
+    func test_load_deliversNoItemsOn200HTTPStatusCodeWithEmptyJSONList() {
+        let (sut, client) = makeSUT()
+
+        expect(sut: sut, toCompleteWith: .success([])) {
+            let emptyJSONData = Data("{\"data\":[]}".utf8)
+            client.complete(withStatusCode: 200, data: emptyJSONData)
+        }
+    }
+    
     // MARK: - Helper
     
     private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (RemoteGiphyLoader, HTTPClientSpy) {
