@@ -10,17 +10,17 @@ import Giphy
 
 final class EndpointTests: XCTestCase {
 
-    func test_urlRequest_prepareValidURLWithPath() throws {
+    func test_urlRequest_prepareURLWithPath() throws {
         let path = "somePath"
         let sut = makeSUT(with: path)
         
-        var networkConfiguration = MockNetworkConfigurable()
+        let networkConfiguration = MockNetworkConfigurable()
         let urlRequest = try sut.urlRequest(with: networkConfiguration)
         
         XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/\(path)")
     }
     
-    func test_urlRequest_prepareValidURLRequestWithDefaultQueryParameters() throws {
+    func test_urlRequest_prepareURLRequestWithDefaultQueryParameters() throws {
         let sut = makeSUT()
         
         var networkConfiguration = MockNetworkConfigurable()
@@ -30,7 +30,7 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/somePath?rating=g")
     }
     
-    func test_urlRequest_prepareValidURLRequestWithHeaders() throws {
+    func test_urlRequest_prepareURLRequestWithHeaders() throws {
         let sut = makeSUT()
         
         var networkConfiguration = MockNetworkConfigurable()
@@ -41,10 +41,20 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(urlRequest.allHTTPHeaderFields, headers)
     }
     
+    func test_urlRequest_prepareURLRequestWithHTTPMethod() throws {
+        let sut = makeSUT(method: .post)
+        
+        let networkConfiguration = MockNetworkConfigurable()
+        let urlRequest = try sut.urlRequest(with: networkConfiguration)
+
+        XCTAssertEqual(urlRequest.httpMethod, "POST")
+
+    }
+    
     // MARK: - Helpers
 
-    private func makeSUT(with path: String = "somePath") -> any ResponseRequestable {
-        let endpoint = Endpoint<DummyResponseModel>(path: path, method: .get, queryParameters: [:], responseDecoder: MockResponseDecoder())
+    private func makeSUT(with path: String = "somePath", method: HTTPMethodType = .get, queryParameters: [String: String] = [:]) -> any ResponseRequestable {
+        let endpoint = Endpoint<DummyResponseModel>(path: path, method: method, queryParameters: queryParameters, responseDecoder: MockResponseDecoder())
         
         return endpoint
     }

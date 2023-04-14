@@ -17,7 +17,7 @@ public enum HTTPMethodType: String {
 public protocol Requestable {
     var path: String { get }
     var method: HTTPMethodType { get }
-    var queryParameters: [String : Any] { get }
+    var queryParameters: [String : String] { get }
     
     func urlRequest(with config: NetworkConfigurable) throws -> URLRequest
 }
@@ -61,6 +61,7 @@ extension Requestable {
         config.headers.forEach { headerField, value in
             urlRequest.setValue(value, forHTTPHeaderField: headerField)
         }
+        urlRequest.httpMethod = method.rawValue
         return urlRequest
     }
 }
@@ -70,10 +71,10 @@ public class Endpoint<R>: ResponseRequestable {
     
     public let path: String
     public let method: HTTPMethodType
-    public let queryParameters: [String : Any]
+    public let queryParameters: [String : String]
     public let responseDecoder: ResponseDecoder
     
-    public init(path: String, method: HTTPMethodType, queryParameters: [String : Any] = [:], responseDecoder: ResponseDecoder) {
+    public init(path: String, method: HTTPMethodType, queryParameters: [String : String] = [:], responseDecoder: ResponseDecoder) {
         self.path = path
         self.method = method
         self.queryParameters = queryParameters
