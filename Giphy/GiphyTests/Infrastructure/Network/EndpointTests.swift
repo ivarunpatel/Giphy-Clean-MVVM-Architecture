@@ -20,9 +20,19 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/\(path)")
     }
     
+    func test_urlRequest_prepareValidURLRequestWithDefaultQueryParameters() throws {
+        let sut = makeSUT()
+        
+        var networkConfiguration = MockNetworkConfigurable()
+        networkConfiguration.setqueryParameters(queryParameters: ["rating": "g"])
+        let urlRequest = try sut.urlRequest(with: networkConfiguration)
+        
+        XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/somePath?rating=g")
+    }
+    
     // MARK: - Helpers
 
-    private func makeSUT(with path: String = "") -> any ResponseRequestable {
+    private func makeSUT(with path: String = "somePath") -> any ResponseRequestable {
         let endpoint = Endpoint<DummyResponseModel>(path: path, method: .get, queryParameters: [:], responseDecoder: MockResponseDecoder())
         
         return endpoint
