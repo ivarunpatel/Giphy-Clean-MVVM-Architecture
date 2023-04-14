@@ -11,7 +11,7 @@ import Giphy
 final class EndpointTests: XCTestCase {
 
     func test_urlRequest_prepareURLWithPath() throws {
-        let path = "somePath"
+        let path = "trending"
         let sut = makeSUT(with: path)
         
         let networkConfiguration = MockNetworkConfigurable()
@@ -27,7 +27,7 @@ final class EndpointTests: XCTestCase {
         networkConfiguration.setqueryParameters(queryParameters: ["rating": "g"])
         let urlRequest = try sut.urlRequest(with: networkConfiguration)
         
-        XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/somePath?rating=g")
+        XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/trending?rating=g")
     }
     
     func test_urlRequest_prepareURLRequestWithHeaders() throws {
@@ -48,12 +48,11 @@ final class EndpointTests: XCTestCase {
         let urlRequest = try sut.urlRequest(with: networkConfiguration)
 
         XCTAssertEqual(urlRequest.httpMethod, "POST")
-
     }
     
     // MARK: - Helpers
 
-    private func makeSUT(with path: String = "somePath", method: HTTPMethodType = .get, queryParameters: [String: String] = [:]) -> any ResponseRequestable {
+    private func makeSUT(with path: String = "trending", method: HTTPMethodType = .get, queryParameters: [String: String] = [:]) -> any ResponseRequestable {
         let endpoint = Endpoint<DummyResponseModel>(path: path, method: method, queryParameters: queryParameters, responseDecoder: MockResponseDecoder())
         
         return endpoint
