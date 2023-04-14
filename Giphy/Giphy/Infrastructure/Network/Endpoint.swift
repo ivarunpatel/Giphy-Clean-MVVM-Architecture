@@ -57,7 +57,10 @@ extension Requestable {
     }
     public func urlRequest(with config: NetworkConfigurable) throws -> URLRequest {
         let url = try url(with: config)
-        let urlRequest = URLRequest(url: url)
+        var urlRequest = URLRequest(url: url)
+        config.headers.forEach { headerField, value in
+            urlRequest.setValue(value, forHTTPHeaderField: headerField)
+        }
         return urlRequest
     }
 }

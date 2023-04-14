@@ -30,6 +30,17 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(urlRequest.url?.absoluteString, "http://any-url.com/somePath?rating=g")
     }
     
+    func test_urlRequest_prepareValidURLRequestWithHeaders() throws {
+        let sut = makeSUT()
+        
+        var networkConfiguration = MockNetworkConfigurable()
+        let headers = ["contentType": "application/json"]
+        networkConfiguration.setHeaders(headers: ["contentType": "application/json"])
+        let urlRequest = try sut.urlRequest(with: networkConfiguration)
+        
+        XCTAssertEqual(urlRequest.allHTTPHeaderFields, headers)
+    }
+    
     // MARK: - Helpers
 
     private func makeSUT(with path: String = "somePath") -> any ResponseRequestable {
@@ -41,18 +52,18 @@ final class EndpointTests: XCTestCase {
     
     private struct MockNetworkConfigurable: NetworkConfigurable {
         var baseURL: URL = URL(string: "http://any-url.com")!
-        var headers: [String : Any] = [:]
-        var queryParameters: [String : Any] = [:]
+        var headers: [String: String] = [:]
+        var queryParameters: [String: String] = [:]
         
         mutating func setbaseURL(url: URL) {
             baseURL = url
         }
         
-        mutating func setHeaders(headers: [String : Any]) {
+        mutating func setHeaders(headers: [String: String]) {
             self.headers = headers
         }
         
-        mutating func setqueryParameters(queryParameters: [String : Any]) {
+        mutating func setqueryParameters(queryParameters: [String: String]) {
             self.queryParameters = queryParameters
         }
     }
