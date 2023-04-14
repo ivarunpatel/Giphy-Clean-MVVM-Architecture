@@ -50,6 +50,36 @@ final class EndpointTests: XCTestCase {
         XCTAssertEqual(urlRequest.httpMethod, "POST")
     }
     
+    func test_urlRequest_prepareURLRequestWithQueryParameters() throws {
+        
+        let queryParameters = ["q": "some", "limit": "10", "offset": "1", "lang": "eng"]
+        let sut = makeSUT(queryParameters: queryParameters)
+        
+        var networkConfiguration = MockNetworkConfigurable()
+        let defaultQueryParameters = ["rating": "g"]
+        networkConfiguration.setqueryParameters(queryParameters: defaultQueryParameters)
+        let urlRequest = try sut.urlRequest(with: networkConfiguration)
+        
+        
+        guard let url = urlRequest.url?.absoluteString,
+              var urlComponent = URLComponents(string: url) else {
+            XCTFail("Should create URLComponents from received URLREquest")
+            return
+        }
+        
+        var requestedURLQueryItems = [URLQueryItem]()
+        
+        defaultQueryParameters.forEach { key, value in
+            requestedURLQueryItems.append(URLQueryItem(name: key, value: value))
+        }
+        queryParameters.forEach { key, value in
+            requestedURLQueryItems.append(URLQueryItem(name: key, value: value))
+        }
+        
+        urlComponent.queryItems = requestedURLQueryItems
+        XCTAssertEqual(urlRequest.url, urlComponent.url)
+    }
+    
     // MARK: - Helpers
 
     private func makeSUT(with path: String = "trending", method: HTTPMethodType = .get, queryParameters: [String: String] = [:]) -> any ResponseRequestable {

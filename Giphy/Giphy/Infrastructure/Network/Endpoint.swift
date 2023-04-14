@@ -46,9 +46,11 @@ extension Requestable {
         var urlQueryItems = [URLQueryItem]()
         
         config.queryParameters.forEach {
-            urlQueryItems.append(URLQueryItem(name: $0.key, value: "\($0.value)"))
+            urlQueryItems.append(URLQueryItem(name: $0.key, value: $0.value.removingPercentEncoding))
         }
-        
+        queryParameters.forEach {
+            urlQueryItems.append(URLQueryItem(name: $0.key, value: $0.value.removingPercentEncoding))
+        }
         urlComponents.queryItems = urlQueryItems.isEmpty ? nil : urlQueryItems
         guard let url = urlComponents.url else {
             throw RequestGenerationError.components
