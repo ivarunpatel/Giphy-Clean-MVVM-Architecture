@@ -8,6 +8,15 @@
 import XCTest
 import Giphy
 
+enum NetworkError: Error {
+    case error(statusCode: Int, data: Data?)
+    case notConnected
+    case cancelled
+    case generic(Error)
+    case urlGeneration
+    case unknown
+}
+
 class NetworkService {
     let config: NetworkConfigurable
     let session: URLSession
@@ -16,22 +25,47 @@ class NetworkService {
         self.config = config
         self.session = session
     }
+        
+    func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) {
+        do {
+            let urlRequest = try endpoint.urlRequest(with: config)
+            request(request: urlRequest, completionHandler: completionHandler)
+        } catch {
+            completionHandler(.failure(NetworkError.urlGeneration))
+        }
+    }
     
-    struct UnexpectedNetworkError: Error { }
-    
-    func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, Error>) -> Void)) {
-        let request = try! endpoint.urlRequest(with: config)
+    private func request(request: URLRequest, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) {
         session.dataTask(with: request) { data, response, error in
-            completionHandler(Result {
-                if let error = error {
-                    throw error
-                } else if let data = data, response is HTTPURLResponse {
-                    return data
-                } else {
-                    throw UnexpectedNetworkError()
-                }
-            })
+            if let error = error {
+                let networkError = self.handle(error: error, with: response, data: data)
+                completionHandler(.failure(networkError))
+            } else if let data = data, response is HTTPURLResponse {
+                completionHandler(.success(data))
+            } else {
+                completionHandler(.failure(NetworkError.unknown))
+            }
         }.resume()
+    }
+    
+    private func handle(error: Error, with response: URLResponse?, data: Data?) -> NetworkError {
+        if let response = response as? HTTPURLResponse {
+            return .error(statusCode: response.statusCode, data: data)
+        } else {
+            return self.resolve(error: error)
+        }
+    }
+    
+    private func resolve(error: Error) -> NetworkError {
+        let code = URLError.Code(rawValue: (error as NSError).code)
+        switch code {
+        case .notConnectedToInternet:
+            return .notConnected
+        case .cancelled:
+            return .cancelled
+        default:
+            return .generic(error)
+        }
     }
 }
 
@@ -68,11 +102,11 @@ final class NetworkServiceTests: XCTestCase {
     }
     
     func test_request_failsOnRequestError() {
-        let requestedError = anyNSError()
+        let requestedError = NetworkError.generic(anyNSError())
         let receivedError = receiveErrorFor(data: nil, response: nil, error: requestedError)
         
-        XCTAssertEqual((receivedError as NSError?)?.domain, requestedError.domain)
-        XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
+        XCTAssertEqual((receivedError as NSError?)?.domain, (requestedError as NSError?)?.domain)
+        XCTAssertEqual((receivedError as NSError?)?.code, (requestedError as NSError?)?.code)
     }
     
     func test_request_failsInAllInvalidRepresentationCases() {
@@ -103,7 +137,7 @@ final class NetworkServiceTests: XCTestCase {
         return sut
     }
     
-    private func receiveErrorFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Error? {
+    private func receiveErrorFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> NetworkError? {
         
         let receivedResult = requestFor(data: data, response: response, error: error)
         
@@ -127,7 +161,7 @@ final class NetworkServiceTests: XCTestCase {
         }
     }
     
-    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Result<Data?, Error> {
+    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Result<Data?, NetworkError> {
         URLProtocolStub.stub(data: data, response: response, error: error)
         
         let sut = makeSUT(config: MockNetworkConfigurable())
@@ -135,7 +169,7 @@ final class NetworkServiceTests: XCTestCase {
         let path = "somePath"
         let endpoint = MockEndPoint(path: path, method: .post)
         let expectation = expectation(description: "Waiting for completion handler")
-        var receivedResult: Result<Data?, Error>!
+        var receivedResult: Result<Data?, NetworkError>!
         sut.request(endpoint: endpoint) { result in
             receivedResult = result
             expectation.fulfill()
