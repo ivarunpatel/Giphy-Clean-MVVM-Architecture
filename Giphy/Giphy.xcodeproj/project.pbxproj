@@ -11,6 +11,8 @@
 		8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */; };
 		8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B8329E9296C00924F44 /* EndpointTests.swift */; };
 		8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */; };
+		8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716229ECFF610019E784 /* NetworkServiceTests.swift */; };
+		8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716429ED024E0019E784 /* SharedTestHelpers.swift */; };
 		8BB0A69329E51895005777A8 /* Giphy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB0A68A29E51894005777A8 /* Giphy.framework */; };
 		8BB0A6A329E52A45005777A8 /* GiphyItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0A6A229E52A45005777A8 /* GiphyItem.swift */; };
 		8BB0A6A529E52D29005777A8 /* GiphyLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BB0A6A429E52D29005777A8 /* GiphyLoader.swift */; };
@@ -33,6 +35,8 @@
 		8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B172B8329E9296C00924F44 /* EndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTests.swift; sourceTree = "<group>"; };
 		8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryTracking.swift"; sourceTree = "<group>"; };
+		8B94716229ECFF610019E784 /* NetworkServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceTests.swift; sourceTree = "<group>"; };
+		8B94716429ED024E0019E784 /* SharedTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTestHelpers.swift; sourceTree = "<group>"; };
 		8BB0A68A29E51894005777A8 /* Giphy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Giphy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BB0A69229E51895005777A8 /* GiphyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GiphyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BB0A6A229E52A45005777A8 /* GiphyItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyItem.swift; sourceTree = "<group>"; };
@@ -89,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				8B172B8329E9296C00924F44 /* EndpointTests.swift */,
+				8B94716229ECFF610019E784 /* NetworkServiceTests.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -97,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */,
+				8B94716429ED024E0019E784 /* SharedTestHelpers.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -280,6 +286,8 @@
 			files = (
 				8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */,
 				8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */,
+				8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */,
+				8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */,
 				8BB0A6AA29E52EB5005777A8 /* RemoteGiphyLoaderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
