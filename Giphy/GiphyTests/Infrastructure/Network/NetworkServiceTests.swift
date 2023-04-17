@@ -32,6 +32,7 @@ class NetworkService {
             request(request: urlRequest, completionHandler: completionHandler)
         } catch {
             completionHandler(.failure(NetworkError.urlGeneration))
+            return nil
         }
     }
     
@@ -45,7 +46,9 @@ class NetworkService {
             } else {
                 completionHandler(.failure(NetworkError.unknown))
             }
-        }.resume()
+        }
+        task.resume()
+        return task
     }
     
     private func handle(error: Error, with response: URLResponse?, data: Data?) -> NetworkError {
@@ -107,6 +110,14 @@ final class NetworkServiceTests: XCTestCase {
         
         XCTAssertEqual((receivedError as NSError?)?.domain, (requestedError as NSError?)?.domain)
         XCTAssertEqual((receivedError as NSError?)?.code, (requestedError as NSError?)?.code)
+    }
+    
+    func test_reques_failsWithNotConnectedErrorWhenNotConnectedToInternet() {
+        let requestedError = notConnectedToInternetError()
+        let receivedError = receiveErrorFor(data: nil, response: nil, error: requestedError)
+        
+        XCTAssertEqual((receivedError as NSError?)?.domain, (NetworkError.notConnected as NSError?)?.domain)
+        XCTAssertEqual((receivedError as NSError?)?.code, (NetworkError.notConnected as NSError?)?.code)
     }
     
     func test_request_failsInAllInvalidRepresentationCases() {
