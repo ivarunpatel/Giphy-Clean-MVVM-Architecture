@@ -17,6 +17,12 @@ enum NetworkError: Error {
     case unknown
 }
 
+protocol NetworkCancellable {
+    func cancel()
+}
+
+extension URLSessionDataTask: NetworkCancellable { }
+
 class NetworkService {
     let config: NetworkConfigurable
     let session: URLSession
@@ -26,18 +32,18 @@ class NetworkService {
         self.session = session
     }
         
-    func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) {
+    func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) -> NetworkCancellable? {
         do {
             let urlRequest = try endpoint.urlRequest(with: config)
-            request(request: urlRequest, completionHandler: completionHandler)
+            return request(request: urlRequest, completionHandler: completionHandler)
         } catch {
             completionHandler(.failure(NetworkError.urlGeneration))
             return nil
         }
     }
     
-    private func request(request: URLRequest, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) {
-        session.dataTask(with: request) { data, response, error in
+    private func request(request: URLRequest, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) -> NetworkCancellable {
+        let task = session.dataTask(with: request) { data, response, error in
             if let error = error {
                 let networkError = self.handle(error: error, with: response, data: data)
                 completionHandler(.failure(networkError))
@@ -99,7 +105,7 @@ final class NetworkServiceTests: XCTestCase {
         }
         
         let sut = makeSUT(config: MockNetworkConfigurable())
-        sut.request(endpoint: endpoint, completionHandler: { _ in })
+        _ = sut.request(endpoint: endpoint, completionHandler: { _ in })
         
         wait(for: [expectation], timeout: 1.0)
     }
@@ -181,13 +187,17 @@ final class NetworkServiceTests: XCTestCase {
         let endpoint = MockEndPoint(path: path, method: .post)
         let expectation = expectation(description: "Waiting for completion handler")
         var receivedResult: Result<Data?, NetworkError>!
-        sut.request(endpoint: endpoint) { result in
+        _ = sut.request(endpoint: endpoint) { result in
             receivedResult = result
             expectation.fulfill()
         }
         
         wait(for: [expectation], timeout: 1.0)
         return receivedResult
+    }
+    
+    private func notConnectedToInternetError() -> NSError {
+        NSError(domain: "Not connected", code: NSURLErrorNotConnectedToInternet)
     }
     
     private func nonHTTPURLResponse() -> URLResponse {
