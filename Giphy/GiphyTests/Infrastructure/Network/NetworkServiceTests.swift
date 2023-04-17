@@ -17,10 +17,12 @@ class NetworkService {
         self.session = session
     }
     
-    func request(endpoint: Requestable) {
+    func request(endpoint: Requestable, completionHandler: @escaping ((Error) -> Void)) {
         let request = try! endpoint.urlRequest(with: config)
-        session.dataTask(with: request) { _, _, _ in
-            
+        session.dataTask(with: request) { _, _, error in
+            if let error = error {
+                completionHandler(error)
+            }
         }.resume()
     }
 }
@@ -52,14 +54,35 @@ final class NetworkServiceTests: XCTestCase {
         }
         
         let sut = makeSUT(config: MockNetworkConfigurable())
-        sut.request(endpoint: endpoint)
+        sut.request(endpoint: endpoint, completionHandler: { _ in })
         
         wait(for: [expectation], timeout: 1.0)
     }
     
+    func test_request_failsOnRequestError() {
+        let requestedError = anyNSError()
+        URLProtocolStub.stub(data: nil, response: nil, error: requestedError)
+        
+        let sut = makeSUT(config: MockNetworkConfigurable())
+        
+        let path = "somePath"
+        let endpoint = MockEndPoint(path: path, method: .post)
+        let expectation = expectation(description: "Waiting for completion handler")
+        var receivedError: Error?
+        sut.request(endpoint: endpoint) { error in
+            receivedError = error
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+
+        XCTAssertEqual((receivedError as NSError?)?.domain, requestedError.domain)
+        XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
+    }
+    
     // MARK: - Helpers
     
-    private func makeSUT(config: MockNetworkConfigurable) -> NetworkService {
+    private func makeSUT(config: NetworkConfigurable) -> NetworkService {
         let sut = NetworkService(config: config)
         return sut
     }
@@ -95,7 +118,14 @@ final class NetworkServiceTests: XCTestCase {
     
     private class URLProtocolStub: URLProtocol {
         
-       private static var observeRequests: ((URLRequest) -> Void)?
+        private static var observeRequests: ((URLRequest) -> Void)?
+        private static var stub: Stub?
+        
+        struct Stub {
+            var data: Data?
+            var response: URLResponse?
+            var error: Error?
+        }
         
         static func startInterceptingRequests() {
             URLProtocol.registerClass(URLProtocolStub.self)
@@ -103,10 +133,16 @@ final class NetworkServiceTests: XCTestCase {
         
         static func stopInterceptingRequests() {
             URLProtocol.unregisterClass(URLProtocolStub.self)
+            observeRequests = nil
+            stub = nil
         }
         
         static func observeRequests(observer: @escaping ((URLRequest) -> Void)) {
             observeRequests = observer
+        }
+        
+        static func stub(data: Data?, response: URLResponse?, error: Error?) {
+            stub = Stub(data: data, response: response, error: error)
         }
         
         override class func canInit(with request: URLRequest) -> Bool {
@@ -122,12 +158,18 @@ final class NetworkServiceTests: XCTestCase {
                 client?.urlProtocolDidFinishLoading(self)
                 return observer(request)
             }
+            
+            if let error = URLProtocolStub.stub?.error {
+                client?.urlProtocol(self, didFailWithError: error)
+            }
+            
+            client?.urlProtocolDidFinishLoading(self)
         }
         
         override func stopLoading() {
             
         }
     }
-
+    
 }
 
