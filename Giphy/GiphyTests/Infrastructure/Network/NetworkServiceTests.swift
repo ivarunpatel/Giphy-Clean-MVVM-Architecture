@@ -19,13 +19,13 @@ class NetworkService {
     
     struct UnexpectedNetworkError: Error { }
     
-    func request(endpoint: Requestable, completionHandler: @escaping ((Error) -> Void)) {
+    func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, Error>) -> Void)) {
         let request = try! endpoint.urlRequest(with: config)
         session.dataTask(with: request) { _, _, error in
             if let error = error {
-                completionHandler(error)
+                completionHandler(.failure(error))
             } else {
-                completionHandler(UnexpectedNetworkError())
+                completionHandler(.failure(UnexpectedNetworkError()))
             }
         }.resume()
     }
@@ -65,22 +65,29 @@ final class NetworkServiceTests: XCTestCase {
     
     func test_request_failsOnRequestError() {
         let requestedError = anyNSError()
-       let receivedError = requestFor(data: nil, response: nil, error: requestedError)
+       let receivedError = receiveErrorFor(data: nil, response: nil, error: requestedError)
 
         XCTAssertEqual((receivedError as NSError?)?.domain, requestedError.domain)
         XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
     }
     
     func test_request_failsInAllInvalidRepresentationCases() {
-        XCTAssertNotNil(requestFor(data: nil, response: nil, error: nil))
-        XCTAssertNotNil(requestFor(data: nil, response: nonHTTPURLResponse(), error: nil))
-        XCTAssertNotNil(requestFor(data: anyData(), response: nil, error: nil))
-        XCTAssertNotNil(requestFor(data: anyData(), response: nil, error: anyNSError()))
-        XCTAssertNotNil(requestFor(data: nil, response: nonHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(requestFor(data: nil, response: anyHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(requestFor(data: anyData(), response: nonHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(requestFor(data: anyData(), response: anyHTTPURLResponse(), error: anyNSError()))
-        XCTAssertNotNil(requestFor(data: anyData(), response: nonHTTPURLResponse(), error: nil))
+        XCTAssertNotNil(receiveErrorFor(data: nil, response: nil, error: nil))
+        XCTAssertNotNil(receiveErrorFor(data: nil, response: nonHTTPURLResponse(), error: nil))
+        XCTAssertNotNil(receiveErrorFor(data: anyData(), response: nil, error: nil))
+        XCTAssertNotNil(receiveErrorFor(data: anyData(), response: nil, error: anyNSError()))
+        XCTAssertNotNil(receiveErrorFor(data: nil, response: nonHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(receiveErrorFor(data: nil, response: anyHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(receiveErrorFor(data: anyData(), response: nonHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(receiveErrorFor(data: anyData(), response: anyHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(receiveErrorFor(data: anyData(), response: nonHTTPURLResponse(), error: nil))
+    }
+    
+    func test_request_successedOnHTTPURLResponseWithData() {
+        let data = anyData()
+        let response = nonHTTPURLResponse()
+        
+        let receivedResult = requestFor(data: data, response: response, error: nil)
     }
     
     // MARK: - Helpers
@@ -90,7 +97,19 @@ final class NetworkServiceTests: XCTestCase {
         return sut
     }
     
-    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Error? {
+    private func receiveErrorFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Error? {
+
+        let receivedResult = requestFor(data: data, response: response, error: error)
+        
+        switch receivedResult {
+        case .failure(let error):
+            return error
+        default:
+            return nil
+        }
+    }
+    
+    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Result<Data?, Error> {
         URLProtocolStub.stub(data: data, response: response, error: error)
         
         let sut = makeSUT(config: MockNetworkConfigurable())
@@ -98,14 +117,14 @@ final class NetworkServiceTests: XCTestCase {
         let path = "somePath"
         let endpoint = MockEndPoint(path: path, method: .post)
         let expectation = expectation(description: "Waiting for completion handler")
-        var receivedError: Error?
-        sut.request(endpoint: endpoint) { error in
-            receivedError = error
+        var receivedResult: Result<Data?, Error>!
+        sut.request(endpoint: endpoint) { result in
+            receivedResult = result
             expectation.fulfill()
         }
         
         wait(for: [expectation], timeout: 1.0)
-        return receivedError
+        return receivedResult
     }
     
     private func nonHTTPURLResponse() -> URLResponse {
