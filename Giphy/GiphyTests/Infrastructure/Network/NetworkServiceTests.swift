@@ -17,11 +17,15 @@ class NetworkService {
         self.session = session
     }
     
+    struct UnexpectedNetworkError: Error { }
+    
     func request(endpoint: Requestable, completionHandler: @escaping ((Error) -> Void)) {
         let request = try! endpoint.urlRequest(with: config)
         session.dataTask(with: request) { _, _, error in
             if let error = error {
                 completionHandler(error)
+            } else {
+                completionHandler(UnexpectedNetworkError())
             }
         }.resume()
     }
@@ -67,6 +71,18 @@ final class NetworkServiceTests: XCTestCase {
         XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
     }
     
+    func test_request_failsInAllInvalidRepresentationCases() {
+        XCTAssertNotNil(requestFor(data: nil, response: nil, error: nil))
+        XCTAssertNotNil(requestFor(data: nil, response: nonHTTPURLResponse(), error: nil))
+        XCTAssertNotNil(requestFor(data: anyData(), response: nil, error: nil))
+        XCTAssertNotNil(requestFor(data: anyData(), response: nil, error: anyNSError()))
+        XCTAssertNotNil(requestFor(data: nil, response: nonHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(requestFor(data: nil, response: anyHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(requestFor(data: anyData(), response: nonHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(requestFor(data: anyData(), response: anyHTTPURLResponse(), error: anyNSError()))
+        XCTAssertNotNil(requestFor(data: anyData(), response: nonHTTPURLResponse(), error: nil))
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(config: NetworkConfigurable) -> NetworkService {
@@ -90,6 +106,18 @@ final class NetworkServiceTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
         return receivedError
+    }
+    
+    private func nonHTTPURLResponse() -> URLResponse {
+        URLResponse(url: anyURL(), mimeType: nil, expectedContentLength: -1, textEncodingName: nil)
+    }
+    
+    private func anyData() -> Data {
+        Data("any data".utf8)
+    }
+    
+    private func anyHTTPURLResponse() -> HTTPURLResponse {
+        HTTPURLResponse(url: anyURL(), mimeType: nil, expectedContentLength: -1, textEncodingName: nil)
     }
     
     private struct MockNetworkConfigurable: NetworkConfigurable {
