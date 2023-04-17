@@ -82,10 +82,10 @@ final class EndpointTests: XCTestCase {
     
     // MARK: - Helpers
 
-    private func makeSUT(with path: String = "trending", method: HTTPMethodType = .get, queryParameters: [String: String] = [:]) -> any ResponseRequestable {
-        let endpoint = Endpoint<DummyResponseModel>(path: path, method: method, queryParameters: queryParameters, responseDecoder: MockResponseDecoder())
-        
-        return endpoint
+    private func makeSUT(with path: String = "trending", method: HTTPMethodType = .get, queryParameters: [String: String] = [:], file: StaticString = #file, line: UInt = #line) -> any ResponseRequestable {
+        let sut = Endpoint<DummyResponseModel>(path: path, method: method, queryParameters: queryParameters, responseDecoder: MockResponseDecoder())
+        trackForMemoryLeaks(sut, file: file, line: line)
+        return sut
     }
     
     
