@@ -21,12 +21,16 @@ class NetworkService {
     
     func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, Error>) -> Void)) {
         let request = try! endpoint.urlRequest(with: config)
-        session.dataTask(with: request) { _, _, error in
-            if let error = error {
-                completionHandler(.failure(error))
-            } else {
-                completionHandler(.failure(UnexpectedNetworkError()))
-            }
+        session.dataTask(with: request) { data, response, error in
+            completionHandler(Result {
+                if let error = error {
+                    throw error
+                } else if let data = data, response is HTTPURLResponse {
+                    return data
+                } else {
+                    throw UnexpectedNetworkError()
+                }
+            })
         }.resume()
     }
 }
@@ -65,8 +69,8 @@ final class NetworkServiceTests: XCTestCase {
     
     func test_request_failsOnRequestError() {
         let requestedError = anyNSError()
-       let receivedError = receiveErrorFor(data: nil, response: nil, error: requestedError)
-
+        let receivedError = receiveErrorFor(data: nil, response: nil, error: requestedError)
+        
         XCTAssertEqual((receivedError as NSError?)?.domain, requestedError.domain)
         XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
     }
@@ -83,11 +87,13 @@ final class NetworkServiceTests: XCTestCase {
         XCTAssertNotNil(receiveErrorFor(data: anyData(), response: nonHTTPURLResponse(), error: nil))
     }
     
-    func test_request_successedOnHTTPURLResponseWithData() {
-        let data = anyData()
-        let response = nonHTTPURLResponse()
+    func test_request_succeedOnHTTPURLResponseWithData() {
+        let requestedData = anyData()
+        let requestedResponse = anyHTTPURLResponse()
         
-        let receivedResult = requestFor(data: data, response: response, error: nil)
+        let receivedValue = receiveValueFor(data: requestedData, response: requestedResponse, error: nil)
+        
+        XCTAssertEqual(receivedValue, requestedData)
     }
     
     // MARK: - Helpers
@@ -98,12 +104,24 @@ final class NetworkServiceTests: XCTestCase {
     }
     
     private func receiveErrorFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Error? {
-
+        
         let receivedResult = requestFor(data: data, response: response, error: error)
         
         switch receivedResult {
         case .failure(let error):
             return error
+        default:
+            return nil
+        }
+    }
+    
+    private func receiveValueFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Data? {
+        
+        let receivedResult = requestFor(data: data, response: response, error: error)
+        
+        switch receivedResult {
+        case .success(let data):
+            return data
         default:
             return nil
         }
@@ -211,9 +229,18 @@ final class NetworkServiceTests: XCTestCase {
                 return observer(request)
             }
             
+            if let data = URLProtocolStub.stub?.data {
+                client?.urlProtocol(self, didLoad: data)
+            }
+            
+            if let response = URLProtocolStub.stub?.response {
+                client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+            }
+            
             if let error = URLProtocolStub.stub?.error {
                 client?.urlProtocol(self, didFailWithError: error)
             }
+            
             
             client?.urlProtocolDidFinishLoading(self)
         }
