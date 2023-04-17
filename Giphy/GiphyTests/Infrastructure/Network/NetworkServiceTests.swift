@@ -61,7 +61,21 @@ final class NetworkServiceTests: XCTestCase {
     
     func test_request_failsOnRequestError() {
         let requestedError = anyNSError()
-        URLProtocolStub.stub(data: nil, response: nil, error: requestedError)
+       let receivedError = requestFor(data: nil, response: nil, error: requestedError)
+
+        XCTAssertEqual((receivedError as NSError?)?.domain, requestedError.domain)
+        XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
+    }
+    
+    // MARK: - Helpers
+    
+    private func makeSUT(config: NetworkConfigurable) -> NetworkService {
+        let sut = NetworkService(config: config)
+        return sut
+    }
+    
+    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Error? {
+        URLProtocolStub.stub(data: data, response: response, error: error)
         
         let sut = makeSUT(config: MockNetworkConfigurable())
         
@@ -75,16 +89,7 @@ final class NetworkServiceTests: XCTestCase {
         }
         
         wait(for: [expectation], timeout: 1.0)
-
-        XCTAssertEqual((receivedError as NSError?)?.domain, requestedError.domain)
-        XCTAssertEqual((receivedError as NSError?)?.code, requestedError.code)
-    }
-    
-    // MARK: - Helpers
-    
-    private func makeSUT(config: NetworkConfigurable) -> NetworkService {
-        let sut = NetworkService(config: config)
-        return sut
+        return receivedError
     }
     
     private struct MockNetworkConfigurable: NetworkConfigurable {
