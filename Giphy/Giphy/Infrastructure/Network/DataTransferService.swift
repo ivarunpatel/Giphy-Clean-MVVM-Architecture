@@ -7,25 +7,25 @@
 
 import Foundation
 
-enum DataTransferError: Error {
+public enum DataTransferError: Error {
     case noResponse
     case parsing(Error)
     case networkError(Error)
 }
 
-protocol DataTransferService {
+public protocol DataTransferService {
     func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping (Result<T, DataTransferError>) -> Void) -> NetworkCancellable? where E.Response == T
 }
 
-class DataTransferServiceLoader: DataTransferService {
-    let networkService: NetworkService
+public final class DataTransferServiceLoader: DataTransferService {
+    private let networkService: NetworkService
     
-    init(networkService: NetworkService) {
+    public init(networkService: NetworkService) {
         self.networkService = networkService
     }
     
     @discardableResult
-    func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping (Result<T, DataTransferError>) -> Void) -> NetworkCancellable? where E.Response == T {
+    public func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping (Result<T, DataTransferError>) -> Void) -> NetworkCancellable? where E.Response == T {
         networkService.request(endpoint: endpoint) { [weak self] result in
             guard let self = self else { return }
             switch result {
