@@ -12,6 +12,7 @@
 		8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7D29E9217100924F44 /* Endpoint.swift */; };
 		8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */; };
 		8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B8329E9296C00924F44 /* EndpointTests.swift */; };
+		8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61ED2529EEA03000969E04 /* DataTransferService.swift */; };
 		8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */; };
 		8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716229ECFF610019E784 /* NetworkServiceTests.swift */; };
 		8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716429ED024E0019E784 /* SharedTestHelpers.swift */; };
@@ -38,6 +39,7 @@
 		8B172B7D29E9217100924F44 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B172B8329E9296C00924F44 /* EndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTests.swift; sourceTree = "<group>"; };
+		8B61ED2529EEA03000969E04 /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
 		8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryTracking.swift"; sourceTree = "<group>"; };
 		8B94716229ECFF610019E784 /* NetworkServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceTests.swift; sourceTree = "<group>"; };
 		8B94716429ED024E0019E784 /* SharedTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTestHelpers.swift; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 				8B172B7D29E9217100924F44 /* Endpoint.swift */,
 				8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */,
 				8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */,
+				8B61ED2529EEA03000969E04 /* DataTransferService.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */,
 				8BB0A6A529E52D29005777A8 /* GiphyLoader.swift in Sources */,
 				8BB0A6AD29E538F3005777A8 /* RemoteGiphyLoader.swift in Sources */,
 				8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */,
