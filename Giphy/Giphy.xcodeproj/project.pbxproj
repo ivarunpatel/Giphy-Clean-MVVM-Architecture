@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */; };
 		8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7D29E9217100924F44 /* Endpoint.swift */; };
 		8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */; };
 		8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B8329E9296C00924F44 /* EndpointTests.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		8B172B7D29E9217100924F44 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B172B8329E9296C00924F44 /* EndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTests.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 			children = (
 				8B172B7D29E9217100924F44 /* Endpoint.swift */,
 				8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */,
+				8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -276,6 +279,7 @@
 				8BB0A6AD29E538F3005777A8 /* RemoteGiphyLoader.swift in Sources */,
 				8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */,
 				8BB0A6A329E52A45005777A8 /* GiphyItem.swift in Sources */,
+				8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */,
 				8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

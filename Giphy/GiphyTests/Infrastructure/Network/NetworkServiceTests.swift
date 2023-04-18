@@ -8,76 +8,6 @@
 import XCTest
 import Giphy
 
-enum NetworkError: Error {
-    case error(statusCode: Int, data: Data?)
-    case notConnected
-    case cancelled
-    case generic(Error)
-    case urlGeneration
-    case unknown
-}
-
-protocol NetworkCancellable {
-    func cancel()
-}
-
-extension URLSessionDataTask: NetworkCancellable { }
-
-class NetworkService {
-    let config: NetworkConfigurable
-    let session: URLSession
-    
-    init(config: NetworkConfigurable, session: URLSession = .shared) {
-        self.config = config
-        self.session = session
-    }
-        
-    func request(endpoint: Requestable, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) -> NetworkCancellable? {
-        do {
-            let urlRequest = try endpoint.urlRequest(with: config)
-            return request(request: urlRequest, completionHandler: completionHandler)
-        } catch {
-            completionHandler(.failure(NetworkError.urlGeneration))
-            return nil
-        }
-    }
-    
-    private func request(request: URLRequest, completionHandler: @escaping ((Result<Data?, NetworkError>) -> Void)) -> NetworkCancellable {
-        let task = session.dataTask(with: request) { data, response, error in
-            if let error = error {
-                let networkError = self.handle(error: error, with: response, data: data)
-                completionHandler(.failure(networkError))
-            } else if let data = data, response is HTTPURLResponse {
-                completionHandler(.success(data))
-            } else {
-                completionHandler(.failure(NetworkError.unknown))
-            }
-        }
-        task.resume()
-        return task
-    }
-    
-    private func handle(error: Error, with response: URLResponse?, data: Data?) -> NetworkError {
-        if let response = response as? HTTPURLResponse {
-            return .error(statusCode: response.statusCode, data: data)
-        } else {
-            return self.resolve(error: error)
-        }
-    }
-    
-    private func resolve(error: Error) -> NetworkError {
-        let code = URLError.Code(rawValue: (error as NSError).code)
-        switch code {
-        case .notConnectedToInternet:
-            return .notConnected
-        case .cancelled:
-            return .cancelled
-        default:
-            return .generic(error)
-        }
-    }
-}
-
 final class NetworkServiceTests: XCTestCase {
     
     override func setUp() {
@@ -105,7 +35,7 @@ final class NetworkServiceTests: XCTestCase {
         }
         
         let sut = makeSUT(config: MockNetworkConfigurable())
-        _ = sut.request(endpoint: endpoint, completionHandler: { _ in })
+        _ = sut.request(endpoint: endpoint, completion: { _ in })
         
         wait(for: [expectation], timeout: 1.0)
     }
@@ -150,7 +80,7 @@ final class NetworkServiceTests: XCTestCase {
     // MARK: - Helpers
     
     private func makeSUT(config: NetworkConfigurable) -> NetworkService {
-        let sut = NetworkService(config: config)
+        let sut = NetworkServiceLoader(config: config)
         return sut
     }
     
@@ -178,7 +108,7 @@ final class NetworkServiceTests: XCTestCase {
         }
     }
     
-    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> Result<Data?, NetworkError> {
+    private func requestFor(data: Data?, response: URLResponse?, error: Error?, file: StaticString = #file, line: UInt = #line) -> NetworkService.Result {
         URLProtocolStub.stub(data: data, response: response, error: error)
         
         let sut = makeSUT(config: MockNetworkConfigurable())
@@ -186,7 +116,7 @@ final class NetworkServiceTests: XCTestCase {
         let path = "somePath"
         let endpoint = MockEndPoint(path: path, method: .post)
         let expectation = expectation(description: "Waiting for completion handler")
-        var receivedResult: Result<Data?, NetworkError>!
+        var receivedResult: NetworkService.Result!
         _ = sut.request(endpoint: endpoint) { result in
             receivedResult = result
             expectation.fulfill()
