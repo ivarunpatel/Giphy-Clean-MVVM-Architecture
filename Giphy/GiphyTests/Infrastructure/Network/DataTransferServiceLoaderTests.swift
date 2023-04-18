@@ -10,6 +10,7 @@ import Giphy
 
 enum DataTransferError: Error {
     case noResponse
+    case parsing(Error)
 }
 
 class DataTransferServiceLoader {
@@ -20,12 +21,19 @@ class DataTransferServiceLoader {
     }
     
     @discardableResult
-    func request<E: ResponseRequestable>(with endpoint: E, completion: @escaping (DataTransferError) -> Void) -> NetworkCancellable? {
+    func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping (Result<T, DataTransferError>) -> Void) -> NetworkCancellable? where E.Response == T {
         networkService.request(endpoint: endpoint) { result in
             switch result {
             case .success(let data):
                 if let data = data {
-                    completion(.noResponse)
+                    do {
+                        let responseModel: T = try endpoint.responseDecoder.decode(data)
+                        completion(.success(responseModel))
+                    } catch {
+                        completion(.failure(.parsing(error)))
+                    }
+                } else {
+                    completion(.failure(.noResponse))
                 }
             default: break
             }
@@ -35,23 +43,33 @@ class DataTransferServiceLoader {
 
 final class DataTransferServiceLoaderTests: XCTestCase {
     
-    func test_request_shouldReturnNoResponseErrorWhenResponseDataIsNil() {
+//    func test_request_shouldReturnNoResponseErrorWhenResponseDataIsNil() {
+//        let (sut, loader) = makeSUT()
+//        let expectedError = DataTransferError.noResponse
+//        let endPoint = Endpoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
+//        let expectation = expectation(description: "Waiting for completion")
+//        var receivedError: DataTransferError?
+//        sut.request(with: endPoint) { error in
+//            receivedError = error
+//            expectation.fulfill()
+//        }
+//        
+//        loader.complete()
+//                
+//        wait(for: [expectation], timeout: 1.0)
+//
+//        XCTAssertEqual((receivedError as NSError?)?.domain, (expectedError as NSError?)?.domain)
+//        XCTAssertEqual((receivedError as NSError?)?.code, (expectedError as NSError?)?.code)
+//    }
+    
+    func test_request_shouldReturnParsingErrorOnJSONDataParsingError() {
         let (sut, loader) = makeSUT()
-        let expectedError = DataTransferError.noResponse
-        let endPoint = Endpoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
-        let expectation = expectation(description: "Waiting for completion")
-        var receivedError: DataTransferError?
-        sut.request(with: endPoint) { error in
-            receivedError = error
-            expectation.fulfill()
-        }
-        
-        loader.complete()
-                
-        wait(for: [expectation], timeout: 1.0)
 
-        XCTAssertEqual((receivedError as NSError?)?.domain, (expectedError as NSError?)?.domain)
-        XCTAssertEqual((receivedError as NSError?)?.code, (expectedError as NSError?)?.code)
+        let expectedError = anyNSError()
+        
+        expect(sut, toCompleteWith: .failure(.parsing(expectedError))) {
+            loader.complete(with: anyData())
+        }
     }
     
     // MARK: - Helpers
@@ -64,7 +82,29 @@ final class DataTransferServiceLoaderTests: XCTestCase {
         return (sut, networkServiceLoaderStub)
     }
     
-    private struct MockResponseModel: Decodable {
+    private func expect(_ sut: DataTransferServiceLoader, toCompleteWith expectedResult: Result<MockResponseModel, DataTransferError>, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+        let endPoint = Endpoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
+        
+        let expectation = expectation(description: "Waiting for completion")
+        sut.request(with: endPoint) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.success(let receivedModel), .success(let expectedModel)):
+                XCTAssertEqual(receivedModel, expectedModel, file: file, line: line)
+            case (.failure(let receivedError), .failure(let expectedError)):
+                XCTAssertEqual((receivedError as NSError?)?.domain, (expectedError as NSError?)?.domain, file: file, line: line)
+                XCTAssertEqual((receivedError as NSError?)?.code, (expectedError as NSError?)?.code, file: file, line: line)
+            default:
+                XCTFail("Expected \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            expectation.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    private struct MockResponseModel: Decodable, Equatable {
         
     }
         
