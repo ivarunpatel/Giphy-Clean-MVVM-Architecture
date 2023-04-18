@@ -43,24 +43,14 @@ class DataTransferServiceLoader {
 
 final class DataTransferServiceLoaderTests: XCTestCase {
     
-//    func test_request_shouldReturnNoResponseErrorWhenResponseDataIsNil() {
-//        let (sut, loader) = makeSUT()
-//        let expectedError = DataTransferError.noResponse
-//        let endPoint = Endpoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
-//        let expectation = expectation(description: "Waiting for completion")
-//        var receivedError: DataTransferError?
-//        sut.request(with: endPoint) { error in
-//            receivedError = error
-//            expectation.fulfill()
-//        }
-//        
-//        loader.complete()
-//                
-//        wait(for: [expectation], timeout: 1.0)
-//
-//        XCTAssertEqual((receivedError as NSError?)?.domain, (expectedError as NSError?)?.domain)
-//        XCTAssertEqual((receivedError as NSError?)?.code, (expectedError as NSError?)?.code)
-//    }
+    func test_request_shouldReturnNoResponseErrorWhenResponseDataIsNil() {
+        let (sut, loader) = makeSUT()
+        let expectedError = DataTransferError.noResponse
+        
+        expect(sut, toCompleteWith: .failure(expectedError)) {
+            loader.complete(with: nil)
+        }
+    }
     
     func test_request_shouldReturnParsingErrorOnJSONDataParsingError() {
         let (sut, loader) = makeSUT()
@@ -122,7 +112,7 @@ final class DataTransferServiceLoaderTests: XCTestCase {
             return nil
         }
         
-        func complete(with data: Data = Data(), at index: Int = 0) {
+        func complete(with data: Data?, at index: Int = 0) {
             receivedMessages[index](.success(data))
         }
     }
