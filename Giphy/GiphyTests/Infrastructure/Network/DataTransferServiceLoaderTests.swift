@@ -74,6 +74,16 @@ final class DataTransferServiceLoaderTests: XCTestCase {
         }
     }
     
+    func test_request_shouldSuccessfullyReturnParsedResponseOnValidJSONResponse() {
+        let (sut, loader) = makeSUT()
+
+        let expectedResponseModel = MockResponseModel(id: "1", url: anyURL())
+        
+        expect(sut, toCompleteWith: .success(expectedResponseModel)) {
+            loader.complete(with: #"{"id": "1", "url": "http://any-url.com"}"#.data(using: .utf8))
+        }
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: DataTransferServiceLoader, loader: NetworkServiceLoaderStub) {
@@ -107,7 +117,8 @@ final class DataTransferServiceLoaderTests: XCTestCase {
     }
     
     private struct MockResponseModel: Decodable, Equatable {
-        
+        let id: String
+        let url: URL
     }
         
     private class JSONResponseDecoder: ResponseDecoder {
