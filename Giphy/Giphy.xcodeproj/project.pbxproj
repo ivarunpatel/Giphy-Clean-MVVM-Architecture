@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */; };
+		8B11FAFC29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B11FAFB29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift */; };
 		8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7D29E9217100924F44 /* Endpoint.swift */; };
 		8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */; };
 		8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B8329E9296C00924F44 /* EndpointTests.swift */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
+		8B11FAFB29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferServiceLoaderTests.swift; sourceTree = "<group>"; };
 		8B172B7D29E9217100924F44 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B172B8329E9296C00924F44 /* EndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTests.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 			children = (
 				8B172B8329E9296C00924F44 /* EndpointTests.swift */,
 				8B94716229ECFF610019E784 /* NetworkServiceTests.swift */,
+				8B11FAFB29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -289,6 +292,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */,
+				8B11FAFC29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift in Sources */,
 				8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */,
 				8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */,
 				8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */,
