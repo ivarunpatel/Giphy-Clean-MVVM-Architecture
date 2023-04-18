@@ -11,6 +11,7 @@ import Giphy
 enum DataTransferError: Error {
     case noResponse
     case parsing(Error)
+    case networkError(Error)
 }
 
 class DataTransferServiceLoader {
@@ -35,7 +36,8 @@ class DataTransferServiceLoader {
                 } else {
                     completion(.failure(.noResponse))
                 }
-            default: break
+            case .failure(let error):
+                completion(.failure(.networkError(error)))
             }
         }
     }
@@ -59,6 +61,16 @@ final class DataTransferServiceLoaderTests: XCTestCase {
         
         expect(sut, toCompleteWith: .failure(.parsing(expectedError))) {
             loader.complete(with: anyData())
+        }
+    }
+    
+    func test_request_shouldReturnNetworkErrorOnNetworkError() {
+        let (sut, loader) = makeSUT()
+        
+        let expectedError = NetworkError.cancelled
+        
+        expect(sut, toCompleteWith: .failure(.networkError(expectedError))) {
+            loader.complete(with: expectedError)
         }
     }
     
@@ -114,6 +126,10 @@ final class DataTransferServiceLoaderTests: XCTestCase {
         
         func complete(with data: Data?, at index: Int = 0) {
             receivedMessages[index](.success(data))
+        }
+        
+        func complete(with error: NetworkError, at index: Int = 0) {
+            receivedMessages[index](.failure(.cancelled))
         }
     }
 }
