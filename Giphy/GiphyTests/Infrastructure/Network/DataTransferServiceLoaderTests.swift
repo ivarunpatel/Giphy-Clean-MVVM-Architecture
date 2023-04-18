@@ -35,7 +35,7 @@ class DataTransferServiceLoader {
 
 final class DataTransferServiceLoaderTests: XCTestCase {
     
-    func test_request_shouldReturnNoResponseErrorWhenCompletesWithoutData() {
+    func test_request_shouldReturnNoResponseErrorWhenResponseDataIsNil() {
         let (sut, loader) = makeSUT()
         let expectedError = DataTransferError.noResponse
         let endPoint = Endpoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
