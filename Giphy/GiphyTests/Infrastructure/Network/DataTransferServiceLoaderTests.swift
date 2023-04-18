@@ -38,7 +38,7 @@ final class DataTransferServiceLoaderTests: XCTestCase {
     func test_request_shouldReturnNoResponseErrorWhenCompletesWithoutData() {
         let (sut, loader) = makeSUT()
         let expectedError = DataTransferError.noResponse
-        let endPoint = MockEndPoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
+        let endPoint = Endpoint<MockResponseModel>(path: "somePath", method: .get, responseDecoder: JSONResponseDecoder())
         let expectation = expectation(description: "Waiting for completion")
         var receivedError: DataTransferError?
         sut.request(with: endPoint) { error in
@@ -67,23 +67,7 @@ final class DataTransferServiceLoaderTests: XCTestCase {
     private struct MockResponseModel: Decodable {
         
     }
-    
-    private class MockEndPoint<R>: ResponseRequestable {
-        typealias Response = R
-                
-        var path: String
-        var method: HTTPMethodType
-        var queryParameters: [String : String] = [:]
         
-        var responseDecoder: ResponseDecoder
-
-        init(path: String, method: HTTPMethodType, responseDecoder: ResponseDecoder) {
-            self.path = path
-            self.method = method
-            self.responseDecoder = responseDecoder
-        }
-    }
-    
     private class JSONResponseDecoder: ResponseDecoder {
         func decode<T: Decodable>(_ data: Data) throws -> T {
            try JSONDecoder().decode(T.self, from: data)
