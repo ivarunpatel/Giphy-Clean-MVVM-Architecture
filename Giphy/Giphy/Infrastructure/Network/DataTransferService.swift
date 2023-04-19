@@ -14,7 +14,10 @@ public enum DataTransferError: Error {
 }
 
 public protocol DataTransferService {
-    func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping (Result<T, DataTransferError>) -> Void) -> NetworkCancellable? where E.Response == T
+    typealias CompletionHandler<T> = (Result<T, DataTransferError>) -> Void
+    
+    @discardableResult
+    func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping CompletionHandler<T>) -> NetworkCancellable? where E.Response == T
 }
 
 public final class DataTransferServiceLoader: DataTransferService {
@@ -25,7 +28,7 @@ public final class DataTransferServiceLoader: DataTransferService {
     }
     
     @discardableResult
-    public func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping (Result<T, DataTransferError>) -> Void) -> NetworkCancellable? where E.Response == T {
+    public func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping CompletionHandler<T>) -> NetworkCancellable? where E.Response == T {
         networkService.request(endpoint: endpoint) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -50,3 +53,13 @@ public final class DataTransferServiceLoader: DataTransferService {
         }
     }
 }
+
+// MARK: - Response Decoder
+public class JSONResponseDecoder: ResponseDecoder {
+    public init() { }
+    
+   public func decode<T: Decodable>(_ data: Data) throws -> T {
+        try JSONDecoder().decode(T.self, from: data)
+    }
+}
+

@@ -76,7 +76,7 @@ public class Endpoint<R>: ResponseRequestable {
     public let queryParameters: [String : String]
     public let responseDecoder: ResponseDecoder
     
-    public init(path: String, method: HTTPMethodType, queryParameters: [String : String] = [:], responseDecoder: ResponseDecoder) {
+    public init(path: String, method: HTTPMethodType, queryParameters: [String : String] = [:], responseDecoder: ResponseDecoder = JSONResponseDecoder()) {
         self.path = path
         self.method = method
         self.queryParameters = queryParameters

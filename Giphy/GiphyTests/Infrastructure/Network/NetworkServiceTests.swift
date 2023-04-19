@@ -162,7 +162,7 @@ final class NetworkServiceTests: XCTestCase {
     
     private class MockEndPoint: Requestable {
         var path: String
-        var method: Giphy.HTTPMethodType
+        var method: HTTPMethodType
         var queryParameters: [String : String] = [:]
         
         init(path: String, method: HTTPMethodType) {

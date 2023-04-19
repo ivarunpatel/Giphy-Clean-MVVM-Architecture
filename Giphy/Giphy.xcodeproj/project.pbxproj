@@ -13,6 +13,8 @@
 		8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */; };
 		8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B8329E9296C00924F44 /* EndpointTests.swift */; };
 		8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61ED2529EEA03000969E04 /* DataTransferService.swift */; };
+		8B8BDE9429EFACFF005BF941 /* GiphyTrendingRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8BDE9329EFACFF005BF941 /* GiphyTrendingRepositoryTests.swift */; };
+		8B8BDE9629EFB72A005BF941 /* MockNetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */; };
 		8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */; };
 		8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716229ECFF610019E784 /* NetworkServiceTests.swift */; };
 		8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716429ED024E0019E784 /* SharedTestHelpers.swift */; };
@@ -40,6 +42,8 @@
 		8B172B7F29E9223800924F44 /* NetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B172B8329E9296C00924F44 /* EndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTests.swift; sourceTree = "<group>"; };
 		8B61ED2529EEA03000969E04 /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
+		8B8BDE9329EFACFF005BF941 /* GiphyTrendingRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyTrendingRepositoryTests.swift; sourceTree = "<group>"; };
+		8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryTracking.swift"; sourceTree = "<group>"; };
 		8B94716229ECFF610019E784 /* NetworkServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceTests.swift; sourceTree = "<group>"; };
 		8B94716429ED024E0019E784 /* SharedTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTestHelpers.swift; sourceTree = "<group>"; };
@@ -107,11 +111,20 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
+		8B8BDE9229EFAB40005BF941 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				8B8BDE9329EFACFF005BF941 /* GiphyTrendingRepositoryTests.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		8B94715F29ECFD500019E784 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */,
 				8B94716429ED024E0019E784 /* SharedTestHelpers.swift */,
+				8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -148,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				8B94715F29ECFD500019E784 /* Helpers */,
+				8B8BDE9229EFAB40005BF941 /* Data */,
 				8B172B8129E9293000924F44 /* Infrastructure */,
 				8BB0A6A929E52EB5005777A8 /* RemoteGiphyLoaderTests.swift */,
 			);
@@ -300,6 +314,8 @@
 				8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */,
 				8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */,
 				8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */,
+				8B8BDE9629EFB72A005BF941 /* MockNetworkConfigurable.swift in Sources */,
+				8B8BDE9429EFACFF005BF941 /* GiphyTrendingRepositoryTests.swift in Sources */,
 				8BB0A6AA29E52EB5005777A8 /* RemoteGiphyLoaderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
