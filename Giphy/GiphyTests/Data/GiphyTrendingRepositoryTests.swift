@@ -82,25 +82,25 @@ extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO {
     }
 }
     
-struct Giphy {
+struct Giphy: Equatable {
     let id: String
     let title: String
     let datetime: String
     let images: GiphyImages
 }
 
-struct GiphyImages {
+struct GiphyImages: Equatable {
     let original: GiphyImageMetadata
     let small: GiphyImageMetadata
 }
 
-struct GiphyImageMetadata {
+struct GiphyImageMetadata: Equatable {
     let height: String
     let width: String
     let url: URL
 }
 
-struct GiphyPage {
+struct GiphyPage: Equatable {
     let totalCount: Int
     let count: Int
     let offset: Int
@@ -132,20 +132,11 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
     func test_fetchTrendingGiphyList_loadTrendingGiphyList() {
         let (sut, dataLoader) = makeSUT()
         
-        let expectation = expectation(description: "Waiting for completion")
         let expectedModel = GiphyResponseDTO(data: [GiphyResponseDTO.GiphyDataDTO(id: "1", title: "title", datetime: "any time", images: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO(original: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "500", width: "500", url: anyURL()), small: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "100", width: "100", url: anyURL())))], pagination: GiphyResponseDTO.PaginationDTO(totalCount: 10, count: 5, offset: 0))
         
-        var receivedResult: Result<GiphyPage, Error>?
-        sut.fetchTrendingGiphyList(limit: 10) { result in
-            receivedResult = result
-            expectation.fulfill()
+        expect(sut: sut, toCompleteWith: .success(expectedModel.toDomain())) {
+            dataLoader.complete(with: expectedModel)
         }
-        
-        dataLoader.complete(with: expectedModel)
-        
-        wait(for: [expectation], timeout: 1.0)
-        
-        XCTAssertEqual(try! receivedResult?.get().giphy.first?.title, "title")
     }
     
     // MARK: - Helpers
@@ -156,6 +147,27 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(dataTransferServiceLoader, file: file, line: line)
         return (sut, dataTransferServiceLoader)
+    }
+    
+    private func expect(sut: GiphyTrendingRepository, toCompleteWith expectedResult: Result<GiphyPage, Error>, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+        let expectation = expectation(description: "Waiting for completion")
+        var receivedResult: Result<GiphyPage, Error>?
+        sut.fetchTrendingGiphyList(limit: 10) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.success(let receivedGiphyPage), .success(let expectedGiphyImage)):
+                XCTAssertEqual(receivedGiphyPage, expectedGiphyImage, file: file, line: line)
+            case (.failure(let receivedError as NSError), .failure(let expectedError as NSError)):
+                XCTAssertEqual(receivedError.domain, expectedError.domain)
+                XCTAssertEqual(receivedError.code, expectedError.code)
+            default:
+                XCTFail("Expected to receive \(expectedResult), got \(receivedResult) instead")
+            }
+            expectation.fulfill()
+        }
+        
+        action()
+        
+        wait(for: [expectation], timeout: 1.0)
     }
     
     private class DataTransferServiceLoaderStub<R: Decodable>: DataTransferService {
