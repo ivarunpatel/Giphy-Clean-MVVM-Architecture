@@ -81,8 +81,8 @@
 		8B04722529EFE62F000571F4 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				8B04722E29EFE770000571F4 /* DataMapping */,
 				8B04722B29EFE6DA000571F4 /* Repositories */,
+				8B04722E29EFE770000571F4 /* DataMapping */,
 			);
 			path = Data;
 			sourceTree = "<group>";

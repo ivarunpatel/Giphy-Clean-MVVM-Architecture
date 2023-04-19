@@ -30,8 +30,8 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
     
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: GiphyTrendingRepository, dataLoader: DataTransferServiceLoaderStub<GiphyResponseDTO>) {
-        let dataTransferServiceLoader = DataTransferServiceLoaderStub<GiphyResponseDTO>()
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: GiphyTrendingRepository, dataLoader: DataTransferServiceLoaderSpy<GiphyResponseDTO>) {
+        let dataTransferServiceLoader = DataTransferServiceLoaderSpy<GiphyResponseDTO>()
         let sut = GiphyTrendingRepository(dataTransferService: dataTransferServiceLoader)
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(dataTransferServiceLoader, file: file, line: line)
@@ -58,7 +58,7 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
         wait(for: [expectation], timeout: 1.0)
     }
     
-    private class DataTransferServiceLoaderStub<R: Decodable>: DataTransferService {
+    private class DataTransferServiceLoaderSpy<R: Decodable>: DataTransferService {
         private var receivedMessages = [CompletionHandler<R>]()
         
         @discardableResult

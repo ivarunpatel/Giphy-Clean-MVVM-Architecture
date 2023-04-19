@@ -51,8 +51,8 @@ final class DataTransferServiceLoaderTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: DataTransferServiceLoader, loader: NetworkServiceLoaderStub) {
-        let networkServiceLoaderStub = NetworkServiceLoaderStub()
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: DataTransferServiceLoader, loader: NetworkServiceLoaderSpy) {
+        let networkServiceLoaderStub = NetworkServiceLoaderSpy()
         let sut = DataTransferServiceLoader(networkService: networkServiceLoaderStub)
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(networkServiceLoaderStub, file: file, line: line)
@@ -92,7 +92,7 @@ final class DataTransferServiceLoaderTests: XCTestCase {
         }
     }
     
-    private final class NetworkServiceLoaderStub: NetworkService {
+    private final class NetworkServiceLoaderSpy: NetworkService {
         var receivedMessages = [((NetworkService.Result) -> Void)]()
         
         func request(endpoint: Requestable, completion: @escaping ((NetworkService.Result) -> Void)) -> NetworkCancellable? {
