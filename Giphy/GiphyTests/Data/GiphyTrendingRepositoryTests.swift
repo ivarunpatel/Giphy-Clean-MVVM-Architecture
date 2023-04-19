@@ -8,126 +8,6 @@
 import XCTest
 import Giphy
 
-struct GiphyResponseDTO: Decodable {
-    let data: [GiphyDataDTO]
-    let pagination: PaginationDTO
-}
-
-extension GiphyResponseDTO {
-    struct GiphyDataDTO: Decodable {
-        let id: String
-        let title: String
-        let datetime: String
-        let images: GiphyImagesDTO
-        
-        enum CodingKeys: String, CodingKey {
-            case id
-            case title
-            case datetime = "import_datetime"
-            case images
-        }
-        
-        struct GiphyImagesDTO: Decodable {
-            let original: GiphyImageMetadataDTO
-            let small: GiphyImageMetadataDTO
-            
-            enum CodingKeys: String, CodingKey {
-                case original
-                case small = "fixed_width_small"
-            }
-            
-            struct GiphyImageMetadataDTO: Decodable {
-                let height: String
-                let width: String
-                let url: URL
-            }
-        }
-    }
-    
-    struct PaginationDTO: Decodable {
-        let totalCount: Int
-        let count: Int
-        let offset: Int
-        
-        enum CodingKeys: String, CodingKey {
-            case totalCount = "total_count"
-            case count
-            case offset
-        }
-    }
-}
-
-// MARK: - Mappings to Domain
-extension GiphyResponseDTO {
-    func toDomain() -> GiphyPage {
-        GiphyPage(totalCount: pagination.totalCount, count: pagination.count, offset: pagination.offset, giphy: data.map { $0.toDomain() })
-    }
-}
-
-extension GiphyResponseDTO.GiphyDataDTO {
-    func toDomain() -> Giphy {
-        Giphy(id: id, title: title, datetime: datetime, images: images.toDomain())
-    }
-}
-
-extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO {
-    func toDomain() -> GiphyImages {
-        GiphyImages(original: original.toDomain(), small: small.toDomain())
-    }
-}
-
-extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO {
-    func toDomain() -> GiphyImageMetadata {
-        GiphyImageMetadata(height: height, width: width, url: url)
-    }
-}
-    
-struct Giphy: Equatable {
-    let id: String
-    let title: String
-    let datetime: String
-    let images: GiphyImages
-}
-
-struct GiphyImages: Equatable {
-    let original: GiphyImageMetadata
-    let small: GiphyImageMetadata
-}
-
-struct GiphyImageMetadata: Equatable {
-    let height: String
-    let width: String
-    let url: URL
-}
-
-struct GiphyPage: Equatable {
-    let totalCount: Int
-    let count: Int
-    let offset: Int
-    let giphy: [Giphy]
-}
-
-final class GiphyTrendingRepository {
-    
-    let dataTransferService: DataTransferService
-    
-    init(dataTransferService: DataTransferService) {
-        self.dataTransferService = dataTransferService
-    }
-    
-    func fetchTrendingGiphyList(limit: Int, completion: @escaping (Result<GiphyPage, Error>) -> Void) {
-        let endpoint = Endpoint<GiphyResponseDTO>(path: "/v1/gifs/trending", method: .get)
-        dataTransferService.request(with: endpoint) { result in
-            switch result {
-            case .success(let responseModel):
-                completion(.success(responseModel.toDomain()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-}
-
 final class GiphyTrendingRepositoryTests: XCTestCase {
     
     func test_fetchTrendingGiphyList_loadTrendingGiphyList() {
@@ -158,7 +38,7 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
         return (sut, dataTransferServiceLoader)
     }
     
-    private func expect(sut: GiphyTrendingRepository, toCompleteWith expectedResult: Result<GiphyPage, Error>, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(sut: GiphyTrendingRepository, toCompleteWith expectedResult: TrendingGiphyRepository.Result, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         let expectation = expectation(description: "Waiting for completion")
         sut.fetchTrendingGiphyList(limit: 10) { receivedResult in
             switch (receivedResult, expectedResult) {
