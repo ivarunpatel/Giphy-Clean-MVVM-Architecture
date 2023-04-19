@@ -40,7 +40,7 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
     
     private func expect(sut: GiphyTrendingRepository, toCompleteWith expectedResult: TrendingGiphyRepository.Result, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         let expectation = expectation(description: "Waiting for completion")
-        sut.fetchTrendingGiphyList(limit: 10) { receivedResult in
+       _ = sut.fetchTrendingGiphyList(limit: 10) { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.success(let receivedGiphyPage), .success(let expectedGiphyImage)):
                 XCTAssertEqual(receivedGiphyPage, expectedGiphyImage, file: file, line: line)
