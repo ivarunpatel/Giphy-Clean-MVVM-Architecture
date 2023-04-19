@@ -21,7 +21,8 @@ final class TrendingGiphyUseCase {
             switch result {
             case .success(let giphyPage):
                 completion(.success(giphyPage))
-            default: break
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
@@ -41,6 +42,16 @@ final class TrendingGiphyUseCaseTests: XCTestCase {
         let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10)
         expect(sut: sut, requestValue: requestValue, toCompleteWith: .success(expectedResult)) {
             repository.complete(with: expectedResult)
+        }
+    }
+    
+    func test_expecute_deliversErrorOnError() {
+        let (sut, repository) = makeSUT()
+        let expectedError = anyNSError()
+        
+        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10)
+        expect(sut: sut, requestValue: requestValue, toCompleteWith: .failure(expectedError)) {
+            repository.complete(with: expectedError)
         }
     }
     
@@ -85,6 +96,10 @@ final class TrendingGiphyUseCaseTests: XCTestCase {
         
         func complete(with giphyPage: GiphyPage, at index: Int = 0) {
             receivedMessages[index](.success(giphyPage))
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            receivedMessages[index](.failure(error))
         }
     }
 
