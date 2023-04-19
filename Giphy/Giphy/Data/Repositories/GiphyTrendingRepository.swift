@@ -15,9 +15,12 @@ public final class GiphyTrendingRepository: TrendingGiphyRepository {
         self.dataTransferService = dataTransferService
     }
     
-    public func fetchTrendingGiphyList(limit: Int, completion: @escaping (TrendingGiphyRepository.Result) -> Void) {
+    public func fetchTrendingGiphyList(limit: Int, completion: @escaping (TrendingGiphyRepository.Result) -> Void) -> Cancellable? {
+        let task = RepositoryTask()
+        
+
         let endpoint = Endpoint<GiphyResponseDTO>(path: "/v1/gifs/trending", method: .get)
-        dataTransferService.request(with: endpoint) { result in
+        task.networkTask =  dataTransferService.request(with: endpoint) { result in
             switch result {
             case .success(let responseModel):
                 completion(.success(responseModel.toDomain()))
@@ -25,5 +28,7 @@ public final class GiphyTrendingRepository: TrendingGiphyRepository {
                 completion(.failure(error))
             }
         }
+        
+        return task
     }
 }

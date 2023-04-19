@@ -11,6 +11,8 @@
 		8B04722D29EFE6E6000571F4 /* GiphyTrendingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B04722C29EFE6E6000571F4 /* GiphyTrendingRepository.swift */; };
 		8B04723029EFE7A3000571F4 /* GiphyResponseDTO+Mapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B04722F29EFE7A3000571F4 /* GiphyResponseDTO+Mapping.swift */; };
 		8B04723329EFE7F2000571F4 /* Giphy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B04723229EFE7F2000571F4 /* Giphy.swift */; };
+		8B04723629EFF182000571F4 /* Cancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B04723529EFF182000571F4 /* Cancellable.swift */; };
+		8B04723929EFF215000571F4 /* RepositoryTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B04723829EFF215000571F4 /* RepositoryTask.swift */; };
 		8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */; };
 		8B11FAFC29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B11FAFB29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift */; };
 		8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B172B7D29E9217100924F44 /* Endpoint.swift */; };
@@ -40,6 +42,8 @@
 		8B04722C29EFE6E6000571F4 /* GiphyTrendingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyTrendingRepository.swift; sourceTree = "<group>"; };
 		8B04722F29EFE7A3000571F4 /* GiphyResponseDTO+Mapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GiphyResponseDTO+Mapping.swift"; sourceTree = "<group>"; };
 		8B04723229EFE7F2000571F4 /* Giphy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Giphy.swift; sourceTree = "<group>"; };
+		8B04723529EFF182000571F4 /* Cancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cancellable.swift; sourceTree = "<group>"; };
+		8B04723829EFF215000571F4 /* RepositoryTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryTask.swift; sourceTree = "<group>"; };
 		8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		8B11FAFB29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferServiceLoaderTests.swift; sourceTree = "<group>"; };
 		8B172B7D29E9217100924F44 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
@@ -111,6 +115,7 @@
 		8B04722B29EFE6DA000571F4 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
+				8B04723729EFF205000571F4 /* Utlis */,
 				8B04722C29EFE6E6000571F4 /* GiphyTrendingRepository.swift */,
 			);
 			path = Repositories;
@@ -130,6 +135,22 @@
 				8B04723229EFE7F2000571F4 /* Giphy.swift */,
 			);
 			path = Entities;
+			sourceTree = "<group>";
+		};
+		8B04723429EFF16A000571F4 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				8B04723529EFF182000571F4 /* Cancellable.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		8B04723729EFF205000571F4 /* Utlis */ = {
+			isa = PBXGroup;
+			children = (
+				8B04723829EFF215000571F4 /* RepositoryTask.swift */,
+			);
+			path = Utlis;
 			sourceTree = "<group>";
 		};
 		8B172B7B29E920EC00924F44 /* Infrastructure */ = {
@@ -211,6 +232,7 @@
 				8B04722629EFE639000571F4 /* Domain */,
 				8B04722529EFE62F000571F4 /* Data */,
 				8B172B7B29E920EC00924F44 /* Infrastructure */,
+				8B04723429EFF16A000571F4 /* Common */,
 			);
 			path = Giphy;
 			sourceTree = "<group>";
@@ -335,11 +357,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B04723629EFF182000571F4 /* Cancellable.swift in Sources */,
 				8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */,
 				8B04722D29EFE6E6000571F4 /* GiphyTrendingRepository.swift in Sources */,
 				8B04723329EFE7F2000571F4 /* Giphy.swift in Sources */,
 				8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */,
 				8B04722A29EFE69B000571F4 /* TrendingGiphyRepository.swift in Sources */,
+				8B04723929EFF215000571F4 /* RepositoryTask.swift in Sources */,
 				8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */,
 				8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */,
 				8B04723029EFE7A3000571F4 /* GiphyResponseDTO+Mapping.swift in Sources */,
