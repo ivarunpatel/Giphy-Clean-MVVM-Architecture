@@ -121,7 +121,8 @@ final class GiphyTrendingRepository {
             switch result {
             case .success(let responseModel):
                 completion(.success(responseModel.toDomain()))
-            default: break
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
@@ -139,6 +140,14 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
         }
     }
     
+    func test_fatchTrendingGiphyList_failsWithErrorOnError() {
+        let (sut, dataLoader) = makeSUT()
+        let expectedError = DataTransferError.noResponse
+        expect(sut: sut, toCompleteWith: .failure(expectedError)) {
+            dataLoader.complete(with: expectedError)
+        }
+    }
+    
     // MARK: - Helpers
 
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: GiphyTrendingRepository, dataLoader: DataTransferServiceLoaderStub<GiphyResponseDTO>) {
@@ -151,7 +160,6 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
     
     private func expect(sut: GiphyTrendingRepository, toCompleteWith expectedResult: Result<GiphyPage, Error>, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         let expectation = expectation(description: "Waiting for completion")
-        var receivedResult: Result<GiphyPage, Error>?
         sut.fetchTrendingGiphyList(limit: 10) { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.success(let receivedGiphyPage), .success(let expectedGiphyImage)):
@@ -181,6 +189,10 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
         
         func complete(with model: GiphyResponseDTO, at index: Int = 0) {
             receivedMessages[index](.success(model as! R))
+        }
+        
+        func complete(with error: DataTransferError, at index: Int = 0) {
+            receivedMessages[index](.failure(error))
         }
     }
 }
