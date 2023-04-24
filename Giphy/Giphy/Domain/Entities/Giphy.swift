@@ -12,12 +12,14 @@ public struct Giphy: Equatable {
     let title: String
     let datetime: String
     let images: GiphyImages
+    let user: GiphyUser
     
-    public init(id: String, title: String, datetime: String, images: GiphyImages) {
+    public init(id: String, title: String, datetime: String, images: GiphyImages, user: GiphyUser) {
         self.id = id
         self.title = title
         self.datetime = datetime
         self.images = images
+        self.user = user
     }
 }
 
@@ -40,6 +42,16 @@ public struct GiphyImageMetadata: Equatable {
         self.height = height
         self.width = width
         self.url = url
+    }
+}
+
+public struct GiphyUser: Equatable {
+    let username: String
+    let displayName: String
+    
+    public init(username: String, displayName: String) {
+        self.username = username
+        self.displayName = displayName
     }
 }
 

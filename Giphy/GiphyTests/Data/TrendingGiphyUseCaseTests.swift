@@ -13,7 +13,7 @@ final class TrendingGiphyUseCaseTests: XCTestCase {
     func test_execute_deliversTrendingGiphy() {
         let (sut, repository) = makeSUT()
         
-        let expectedResult = GiphyPage(totalCount: 20, count: 10, offset: 0, giphy: [Giphy(id: "1", title: "title", datetime: "any time", images: GiphyImages(original: GiphyImageMetadata(height: "500", width: "500", url: anyURL()), small: GiphyImageMetadata(height: "100", width: "100", url: anyURL())))])
+        let expectedResult = GiphyPage(totalCount: 20, count: 10, offset: 0, giphy: [Giphy(id: "1", title: "title", datetime: "any time", images: GiphyImages(original: GiphyImageMetadata(height: "500", width: "500", url: anyURL()), small: GiphyImageMetadata(height: "100", width: "100", url: anyURL())), user: GiphyUser(username: "test", displayName: "test_name"))])
         
         let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10)
         expect(sut: sut, requestValue: requestValue, toCompleteWith: .success(expectedResult)) {

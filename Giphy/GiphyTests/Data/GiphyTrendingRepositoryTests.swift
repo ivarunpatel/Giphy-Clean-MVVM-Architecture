@@ -13,7 +13,7 @@ final class GiphyTrendingRepositoryTests: XCTestCase {
     func test_fetchTrendingGiphyList_loadTrendingGiphyList() {
         let (sut, dataLoader) = makeSUT()
         
-        let expectedModel = GiphyResponseDTO(data: [GiphyResponseDTO.GiphyDataDTO(id: "1", title: "title", datetime: "any time", images: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO(original: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "500", width: "500", url: anyURL()), small: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "100", width: "100", url: anyURL())))], pagination: GiphyResponseDTO.PaginationDTO(totalCount: 10, count: 5, offset: 0))
+        let expectedModel = GiphyResponseDTO(data: [GiphyResponseDTO.GiphyDataDTO(id: "1", title: "title", datetime: "any time", images: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO(original: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "500", width: "500", url: anyURL()), small: GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "100", width: "100", url: anyURL())), user: GiphyResponseDTO.GiphyDataDTO.GiphyUserDTO(username: "test_user", displayName: "test user"))], pagination: GiphyResponseDTO.PaginationDTO(totalCount: 10, count: 5, offset: 0))
         
         expect(sut: sut, toCompleteWith: .success(expectedModel.toDomain())) {
             dataLoader.complete(with: expectedModel)

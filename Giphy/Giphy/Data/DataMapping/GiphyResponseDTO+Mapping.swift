@@ -25,12 +25,14 @@ public extension GiphyResponseDTO {
         let title: String
         let datetime: String
         let images: GiphyImagesDTO
+        let user: GiphyUserDTO
         
-        public init(id: String, title: String, datetime: String, images: GiphyImagesDTO) {
+        public init(id: String, title: String, datetime: String, images: GiphyImagesDTO, user: GiphyUserDTO) {
             self.id = id
             self.title = title
             self.datetime = datetime
             self.images = images
+            self.user = user
         }
         
         enum CodingKeys: String, CodingKey {
@@ -38,6 +40,7 @@ public extension GiphyResponseDTO {
             case title
             case datetime = "import_datetime"
             case images
+            case user
         }
         
         public struct GiphyImagesDTO: Decodable {
@@ -64,6 +67,21 @@ public extension GiphyResponseDTO {
                     self.width = width
                     self.url = url
                 }
+            }
+        }
+        
+        public struct GiphyUserDTO: Decodable {
+            let username: String
+            let displayName: String
+            
+            public init(username: String, displayName: String) {
+                self.username = username
+                self.displayName = displayName
+            }
+            
+            enum CodingKeys: String, CodingKey {
+                case username
+                case displayName = "display_name"
             }
         }
     }
@@ -96,7 +114,7 @@ public extension GiphyResponseDTO {
 
 extension GiphyResponseDTO.GiphyDataDTO {
     func toDomain() -> Giphy {
-        Giphy(id: id, title: title, datetime: datetime, images: images.toDomain())
+        Giphy(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user.toDomain())
     }
 }
 
@@ -109,5 +127,11 @@ extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO {
 extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO {
     func toDomain() -> GiphyImageMetadata {
         GiphyImageMetadata(height: height, width: width, url: url)
+    }
+}
+
+extension GiphyResponseDTO.GiphyDataDTO.GiphyUserDTO {
+    func toDomain() -> GiphyUser {
+        GiphyUser(username: username, displayName: displayName)
     }
 }
