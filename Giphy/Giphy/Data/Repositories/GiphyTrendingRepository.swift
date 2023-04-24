@@ -19,7 +19,7 @@ public final class GiphyTrendingRepository: TrendingGiphyRepository {
         let task = RepositoryTask()
         
 
-        let endpoint = Endpoint<GiphyResponseDTO>(path: "/v1/gifs/trending", method: .get)
+        let endpoint = Endpoint<GiphyResponseDTO>(path: "/v1/gifs/trending", method: .get, queryParameters: ["limit": "\(limit)", "rating": "g"])
         task.networkTask =  dataTransferService.request(with: endpoint) { result in
             switch result {
             case .success(let responseModel):

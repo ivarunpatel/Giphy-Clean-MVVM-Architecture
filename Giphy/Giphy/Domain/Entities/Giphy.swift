@@ -8,11 +8,11 @@
 import Foundation
 
 public struct Giphy: Equatable {
-    let id: String
-    let title: String
-    let datetime: String
-    let images: GiphyImages
-    let user: GiphyUser
+    public let id: String
+    public let title: String
+    public let datetime: String
+    public let images: GiphyImages
+    public let user: GiphyUser
     
     public init(id: String, title: String, datetime: String, images: GiphyImages, user: GiphyUser) {
         self.id = id
@@ -24,8 +24,8 @@ public struct Giphy: Equatable {
 }
 
 public struct GiphyImages: Equatable {
-    let original: GiphyImageMetadata
-    let small: GiphyImageMetadata
+    public let original: GiphyImageMetadata
+    public let small: GiphyImageMetadata
     
     public init(original: GiphyImageMetadata, small: GiphyImageMetadata) {
         self.original = original
@@ -34,9 +34,9 @@ public struct GiphyImages: Equatable {
 }
 
 public struct GiphyImageMetadata: Equatable {
-    let height: String
-    let width: String
-    let url: URL
+    public let height: String
+    public let width: String
+    public let url: URL
     
     public init(height: String, width: String, url: URL) {
         self.height = height
@@ -46,8 +46,8 @@ public struct GiphyImageMetadata: Equatable {
 }
 
 public struct GiphyUser: Equatable {
-    let username: String
-    let displayName: String
+    public let username: String
+    public let displayName: String
     
     public init(username: String, displayName: String) {
         self.username = username
@@ -56,10 +56,10 @@ public struct GiphyUser: Equatable {
 }
 
 public struct GiphyPage: Equatable {
-    let totalCount: Int
-    let count: Int
-    let offset: Int
-    let giphy: [Giphy]
+    public let totalCount: Int
+    public let count: Int
+    public let offset: Int
+    public let giphy: [Giphy]
     
     public init(totalCount: Int, count: Int, offset: Int, giphy: [Giphy]) {
         self.totalCount = totalCount

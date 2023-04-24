@@ -38,7 +38,7 @@ public extension GiphyResponseDTO {
         enum CodingKeys: String, CodingKey {
             case id
             case title
-            case datetime = "import_datetime"
+            case datetime = "trending_datetime"
             case images
             case user
         }
