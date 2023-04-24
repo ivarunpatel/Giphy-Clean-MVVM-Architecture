@@ -142,24 +142,6 @@ final class NetworkServiceTests: XCTestCase {
         HTTPURLResponse(url: anyURL(), mimeType: nil, expectedContentLength: -1, textEncodingName: nil)
     }
     
-    private struct MockNetworkConfigurable: NetworkConfigurable {
-        var baseURL: URL = anyURL()
-        var headers: [String: String] = [:]
-        var queryParameters: [String: String] = [:]
-        
-        mutating func setbaseURL(url: URL) {
-            baseURL = url
-        }
-        
-        mutating func setHeaders(headers: [String: String]) {
-            self.headers = headers
-        }
-        
-        mutating func setqueryParameters(queryParameters: [String: String]) {
-            self.queryParameters = queryParameters
-        }
-    }
-    
     private class MockEndPoint: Requestable {
         var path: String
         var method: HTTPMethodType

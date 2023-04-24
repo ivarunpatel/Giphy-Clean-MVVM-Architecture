@@ -203,6 +203,14 @@
 			path = Network;
 			sourceTree = "<group>";
 		};
+		8B2851E629F68A2D00F71BD4 /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */,
+			);
+			path = Mock;
+			sourceTree = "<group>";
+		};
 		8B8BDE9229EFAB40005BF941 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -217,7 +225,6 @@
 			children = (
 				8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */,
 				8B94716429ED024E0019E784 /* SharedTestHelpers.swift */,
-				8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -254,6 +261,7 @@
 		8BB0A69629E51895005777A8 /* GiphyTests */ = {
 			isa = PBXGroup;
 			children = (
+				8B2851E629F68A2D00F71BD4 /* Mock */,
 				8B94715F29ECFD500019E784 /* Helpers */,
 				8B8BDE9229EFAB40005BF941 /* Data */,
 				8B172B8129E9293000924F44 /* Infrastructure */,
