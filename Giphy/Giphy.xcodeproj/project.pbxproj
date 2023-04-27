@@ -24,6 +24,8 @@
 		8B2851EF29F69BC600F71BD4 /* Giphy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB0A68A29E51894005777A8 /* Giphy.framework */; };
 		8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61ED2529EEA03000969E04 /* DataTransferService.swift */; };
 		8B8ACBD129FA57C5009AC12E /* FeedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */; };
+		8B8ACBD429FA7856009AC12E /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8ACBD329FA7856009AC12E /* ConnectionError.swift */; };
+		8B8ACBD729FA78CC009AC12E /* DataTransferError+ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8ACBD629FA78CC009AC12E /* DataTransferError+ConnectionError.swift */; };
 		8B8BDE9429EFACFF005BF941 /* TrendingRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8BDE9329EFACFF005BF941 /* TrendingRepositoryTests.swift */; };
 		8B8BDE9629EFB72A005BF941 /* MockNetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */; };
 		8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */; };
@@ -69,6 +71,8 @@
 		8B2851ED29F69BC600F71BD4 /* GiphyAPIEndToEndTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyAPIEndToEndTests.swift; sourceTree = "<group>"; };
 		8B61ED2529EEA03000969E04 /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
 		8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModelTests.swift; sourceTree = "<group>"; };
+		8B8ACBD329FA7856009AC12E /* ConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionError.swift; sourceTree = "<group>"; };
+		8B8ACBD629FA78CC009AC12E /* DataTransferError+ConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataTransferError+ConnectionError.swift"; sourceTree = "<group>"; };
 		8B8BDE9329EFACFF005BF941 /* TrendingRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingRepositoryTests.swift; sourceTree = "<group>"; };
 		8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryTracking.swift"; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				8B04723529EFF182000571F4 /* Cancellable.swift */,
+				8B8ACBD329FA7856009AC12E /* ConnectionError.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -244,6 +249,14 @@
 			path = GiphyAPIEndToEndTests;
 			sourceTree = "<group>";
 		};
+		8B8ACBD529FA78B5009AC12E /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				8B8ACBD629FA78CC009AC12E /* DataTransferError+ConnectionError.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		8B8BDE9229EFAB40005BF941 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -298,6 +311,7 @@
 		8BA668AB29FA3EE80073CF20 /* Utlis */ = {
 			isa = PBXGroup;
 			children = (
+				8B8ACBD529FA78B5009AC12E /* Extensions */,
 				8BA668AC29FA3EFA0073CF20 /* Observable.swift */,
 			);
 			path = Utlis;
@@ -504,6 +518,7 @@
 			files = (
 				8B04723629EFF182000571F4 /* Cancellable.swift in Sources */,
 				8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */,
+				8B8ACBD429FA7856009AC12E /* ConnectionError.swift in Sources */,
 				8B04722D29EFE6E6000571F4 /* TrendingRepositoryLoader.swift in Sources */,
 				8B04723329EFE7F2000571F4 /* Feed.swift in Sources */,
 				8BA668AD29FA3EFA0073CF20 /* Observable.swift in Sources */,
@@ -513,6 +528,7 @@
 				8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */,
 				8B04723E29F0031C000571F4 /* TrendingUseCase.swift in Sources */,
 				8B172B8029E9223800924F44 /* NetworkConfigurable.swift in Sources */,
+				8B8ACBD729FA78CC009AC12E /* DataTransferError+ConnectionError.swift in Sources */,
 				8B04723029EFE7A3000571F4 /* FeedResponseDTO+Mapping.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

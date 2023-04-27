@@ -17,12 +17,22 @@ final class FeedViewModel {
     }
     
     var items: Observable<FeedPage?> = Observable(.none)
+    var error: Observable<String> = Observable("")
     
     func viewDidLoad() {
         _ = useCase.execute(requestValue: .init(limit: 10)) { [weak self] result in
             guard let self = self else { return }
-            items.value = try! result.get()
+            switch result {
+            case .success(let feedPage):
+                items.value = feedPage
+            case .failure(let error):
+                self.handleError(error: error)
+            }
         }
+    }
+    
+    private func handleError(error: Error) {
+        self.error.value = error.isInternetConnectionError ? "No internet connection" : "Failed to load feed"
     }
 }
 
@@ -34,7 +44,7 @@ final class FeedViewModelTests: XCTestCase {
         XCTAssertTrue(useCase.receivedMessages.isEmpty)
     }
     
-    func test_viewDidLoad_loadItems() {
+    func test_viewDidLoad_loadItemsOnSuccessfulUseCaseExecution() {
         let (sut, useCase) = makeSUT()
         
         sut.viewDidLoad()
@@ -43,6 +53,28 @@ final class FeedViewModelTests: XCTestCase {
         useCase.complete(with: expectedValue)
         
         XCTAssertEqual(sut.items.value, expectedValue)
+    }
+    
+    func test_viewDidLoad_returnNoInternetConnectionErrorMessageWhenUseCaseFailWithNetworkError() {
+        let (sut, useCase) = makeSUT()
+        
+        sut.viewDidLoad()
+        
+        let intetnetConnectionError = DataTransferError.networkError(NetworkError.notConnected)
+        useCase.complete(with: intetnetConnectionError)
+        
+        XCTAssertEqual(sut.error.value, "No internet connection")
+    }
+    
+    func test_viewDidLoad_returnFailedToLoadFeedErrorMessageWhenUseCaseFailWithAnyErrorOtherThanNetworkError() {
+        let (sut, useCase) = makeSUT()
+        
+        sut.viewDidLoad()
+        
+        let error = anyNSError()
+        useCase.complete(with: error)
+        
+        XCTAssertEqual(sut.error.value, "Failed to load feed")
     }
     
     // MARK: - Helpers
@@ -65,6 +97,10 @@ final class FeedViewModelTests: XCTestCase {
         
         func complete(with feed: FeedPage, at index: Int = 0) {
             receivedMessages[index](.success(feed))
+        }
+        
+        func complete(with feed: Error, at index: Int = 0) {
+            receivedMessages[index](.failure(feed))
         }
     }
     
