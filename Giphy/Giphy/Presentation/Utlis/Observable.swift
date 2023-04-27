@@ -22,8 +22,12 @@ final public class Observable<Value> {
         self.value = value
     }
     
-    public func observe(listner: Listner?) {
+    public func subscribe(listner: Listner?) {
         self.listner = listner
         listner?(value)
+    }
+    
+    public func unsubscribe() {
+        self.listner = nil
     }
 }
