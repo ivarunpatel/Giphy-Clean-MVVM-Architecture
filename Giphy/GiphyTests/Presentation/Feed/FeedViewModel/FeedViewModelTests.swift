@@ -20,6 +20,10 @@ final class FeedViewModel {
     var error: Observable<String> = Observable("")
     
     func viewDidLoad() {
+        loadFeed()
+    }
+    
+    private func loadFeed() {
         _ = useCase.execute(requestValue: .init(limit: 10)) { [weak self] result in
             guard let self = self else { return }
             switch result {
