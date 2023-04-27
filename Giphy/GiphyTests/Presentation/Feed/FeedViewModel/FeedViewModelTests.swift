@@ -29,8 +29,7 @@ final class FeedViewModel {
 final class FeedViewModelTests: XCTestCase {
     
     func test_init_doesNotLoadItems() {
-        let useCase = TrendingUseCaseSpy()
-        let sut = FeedViewModel(useCase: useCase)
+        let (_, useCase) = makeSUT()
         
         XCTAssertTrue(useCase.receivedMessages.isEmpty)
     }
