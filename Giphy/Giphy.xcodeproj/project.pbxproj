@@ -23,6 +23,7 @@
 		8B2851EE29F69BC600F71BD4 /* GiphyAPIEndToEndTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2851ED29F69BC600F71BD4 /* GiphyAPIEndToEndTests.swift */; };
 		8B2851EF29F69BC600F71BD4 /* Giphy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB0A68A29E51894005777A8 /* Giphy.framework */; };
 		8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61ED2529EEA03000969E04 /* DataTransferService.swift */; };
+		8B8ACBD129FA57C5009AC12E /* FeedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */; };
 		8B8BDE9429EFACFF005BF941 /* TrendingRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8BDE9329EFACFF005BF941 /* TrendingRepositoryTests.swift */; };
 		8B8BDE9629EFB72A005BF941 /* MockNetworkConfigurable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */; };
 		8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */; };
@@ -67,6 +68,7 @@
 		8B2851EB29F69BC600F71BD4 /* GiphyAPIEndToEndTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GiphyAPIEndToEndTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B2851ED29F69BC600F71BD4 /* GiphyAPIEndToEndTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyAPIEndToEndTests.swift; sourceTree = "<group>"; };
 		8B61ED2529EEA03000969E04 /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
+		8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModelTests.swift; sourceTree = "<group>"; };
 		8B8BDE9329EFACFF005BF941 /* TrendingRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingRepositoryTests.swift; sourceTree = "<group>"; };
 		8B8BDE9529EFB72A005BF941 /* MockNetworkConfigurable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkConfigurable.swift; sourceTree = "<group>"; };
 		8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+MemoryTracking.swift"; sourceTree = "<group>"; };
@@ -280,6 +282,7 @@
 		8BA668A929FA39DE0073CF20 /* FeedViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */,
 			);
 			path = FeedViewModel;
 			sourceTree = "<group>";
@@ -520,6 +523,7 @@
 			files = (
 				8B172B8429E9296C00924F44 /* EndpointTests.swift in Sources */,
 				8BA668B029FA40620073CF20 /* ObservableTests.swift in Sources */,
+				8B8ACBD129FA57C5009AC12E /* FeedViewModelTests.swift in Sources */,
 				8B11FAFC29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift in Sources */,
 				8B04723B29EFFCCE000571F4 /* TrendingGiphyUseCaseTests.swift in Sources */,
 				8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */,
