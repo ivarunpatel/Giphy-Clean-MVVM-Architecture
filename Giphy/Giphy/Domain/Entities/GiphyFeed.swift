@@ -1,5 +1,5 @@
 //
-//  Giphy.swift
+//  GiphyFeed.swift
 //  Giphy
 //
 //  Created by Varun on 19/04/23.
@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct Giphy: Equatable {
+public struct GiphyFeed: Equatable {
     public let id: String
     public let title: String
     public let datetime: String
-    public let images: GiphyImages
-    public let user: GiphyUser
+    public let images: GiphyFeedImages
+    public let user: GiphyFeedUser
     
-    public init(id: String, title: String, datetime: String, images: GiphyImages, user: GiphyUser) {
+    public init(id: String, title: String, datetime: String, images: GiphyFeedImages, user: GiphyFeedUser) {
         self.id = id
         self.title = title
         self.datetime = datetime
@@ -23,17 +23,17 @@ public struct Giphy: Equatable {
     }
 }
 
-public struct GiphyImages: Equatable {
-    public let original: GiphyImageMetadata
-    public let small: GiphyImageMetadata
+public struct GiphyFeedImages: Equatable {
+    public let original: GiphyFeedImageMetadata
+    public let small: GiphyFeedImageMetadata
     
-    public init(original: GiphyImageMetadata, small: GiphyImageMetadata) {
+    public init(original: GiphyFeedImageMetadata, small: GiphyFeedImageMetadata) {
         self.original = original
         self.small = small
     }
 }
 
-public struct GiphyImageMetadata: Equatable {
+public struct GiphyFeedImageMetadata: Equatable {
     public let height: String
     public let width: String
     public let url: URL
@@ -45,7 +45,7 @@ public struct GiphyImageMetadata: Equatable {
     }
 }
 
-public struct GiphyUser: Equatable {
+public struct GiphyFeedUser: Equatable {
     public let username: String
     public let displayName: String
     
@@ -55,13 +55,13 @@ public struct GiphyUser: Equatable {
     }
 }
 
-public struct GiphyPage: Equatable {
+public struct GiphyFeedPage: Equatable {
     public let totalCount: Int
     public let count: Int
     public let offset: Int
-    public let giphy: [Giphy]
+    public let giphy: [GiphyFeed]
     
-    public init(totalCount: Int, count: Int, offset: Int, giphy: [Giphy]) {
+    public init(totalCount: Int, count: Int, offset: Int, giphy: [GiphyFeed]) {
         self.totalCount = totalCount
         self.count = count
         self.offset = offset

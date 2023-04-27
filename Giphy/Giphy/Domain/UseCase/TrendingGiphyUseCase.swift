@@ -8,10 +8,10 @@
 import Foundation
 
 public protocol TrendingGiphyUseCase {
-    func execute(requestValue: TrendingGiphyUseCaseRequestValue, completion: @escaping (Result<GiphyPage, Error>) -> Void) -> Cancellable?
+    func execute(requestValue: TrendingGiphyUseCaseRequestValue, completion: @escaping (Result<GiphyFeedPage, Error>) -> Void) -> Cancellable?
 }
 
-public final class DefaultTrendingGiphyUseCase: TrendingGiphyUseCase {
+public final class TrendingGiphyUseCaseLoader: TrendingGiphyUseCase {
     
     let trendingGiphyRepository: TrendingGiphyRepository
     
@@ -19,7 +19,7 @@ public final class DefaultTrendingGiphyUseCase: TrendingGiphyUseCase {
         self.trendingGiphyRepository = trendingGiphyRepository
     }
     
-    public func execute(requestValue: TrendingGiphyUseCaseRequestValue, completion: @escaping (Result<GiphyPage, Error>) -> Void) -> Cancellable? {
+    public func execute(requestValue: TrendingGiphyUseCaseRequestValue, completion: @escaping (Result<GiphyFeedPage, Error>) -> Void) -> Cancellable? {
         return trendingGiphyRepository.fetchTrendingGiphyList(limit: requestValue.limit) { result in
             switch result {
             case .success(let giphyPage):

@@ -52,7 +52,7 @@ final class EndpointTests: XCTestCase {
     
     func test_urlRequest_prepareURLRequestWithQueryParameters() throws {
         
-        let queryParameters = ["q": "some", "limit": "10", "offset": "1", "lang": "eng"]
+        let queryParameters: [String: Any] = ["q": "some", "limit": 10, "offset": 1, "lang": "eng"]
         let sut = makeSUT(queryParameters: queryParameters)
         
         var networkConfiguration = MockNetworkConfigurable()
@@ -73,7 +73,7 @@ final class EndpointTests: XCTestCase {
             requestedURLQueryItems.append(URLQueryItem(name: key, value: value))
         }
         queryParameters.forEach { key, value in
-            requestedURLQueryItems.append(URLQueryItem(name: key, value: value))
+            requestedURLQueryItems.append(URLQueryItem(name: key, value: "\(value)"))
         }
         
         urlComponent.queryItems = requestedURLQueryItems
@@ -82,7 +82,7 @@ final class EndpointTests: XCTestCase {
     
     // MARK: - Helpers
 
-    private func makeSUT(with path: String = "trending", method: HTTPMethodType = .get, queryParameters: [String: String] = [:], file: StaticString = #file, line: UInt = #line) -> any ResponseRequestable {
+    private func makeSUT(with path: String = "trending", method: HTTPMethodType = .get, queryParameters: [String: Any] = [:], file: StaticString = #file, line: UInt = #line) -> any ResponseRequestable {
         let sut = Endpoint<DummyResponseModel>(path: path, method: method, queryParameters: queryParameters, responseDecoder: MockResponseDecoder())
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut

@@ -17,7 +17,7 @@ public enum HTTPMethodType: String {
 public protocol Requestable {
     var path: String { get }
     var method: HTTPMethodType { get }
-    var queryParameters: [String : String] { get }
+    var queryParameters: [String : Any] { get }
     
     func urlRequest(with config: NetworkConfigurable) throws -> URLRequest
 }
@@ -49,7 +49,7 @@ extension Requestable {
             urlQueryItems.append(URLQueryItem(name: $0.key, value: $0.value.removingPercentEncoding))
         }
         queryParameters.forEach {
-            urlQueryItems.append(URLQueryItem(name: $0.key, value: $0.value.removingPercentEncoding))
+            urlQueryItems.append(URLQueryItem(name: $0.key, value: "\($0.value)"))
         }
         urlComponents.queryItems = urlQueryItems.isEmpty ? nil : urlQueryItems
         guard let url = urlComponents.url else {
@@ -73,10 +73,10 @@ public class Endpoint<R>: ResponseRequestable {
     
     public let path: String
     public let method: HTTPMethodType
-    public let queryParameters: [String : String]
+    public let queryParameters: [String : Any]
     public let responseDecoder: ResponseDecoder
     
-    public init(path: String, method: HTTPMethodType, queryParameters: [String : String] = [:], responseDecoder: ResponseDecoder = JSONResponseDecoder()) {
+    public init(path: String, method: HTTPMethodType, queryParameters: [String : Any] = [:], responseDecoder: ResponseDecoder = JSONResponseDecoder()) {
         self.path = path
         self.method = method
         self.queryParameters = queryParameters

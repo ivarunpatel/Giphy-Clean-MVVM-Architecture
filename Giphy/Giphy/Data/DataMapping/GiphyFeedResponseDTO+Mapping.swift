@@ -1,5 +1,5 @@
 //
-//  GiphyResponseDTO+Mapping.swift
+//  GiphyFeedResponseDTO+Mapping.swift
 //  Giphy
 //
 //  Created by Varun on 19/04/23.
@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Data Transfer Object
 
-public struct GiphyResponseDTO: Decodable {
+public struct GiphyFeedResponseDTO: Decodable {
     public let data: [GiphyDataDTO]
     public let pagination: PaginationDTO
     
@@ -19,7 +19,7 @@ public struct GiphyResponseDTO: Decodable {
     }
 }
 
-public extension GiphyResponseDTO {
+public extension GiphyFeedResponseDTO {
     struct GiphyDataDTO: Decodable {
         let id: String
         let title: String
@@ -106,32 +106,32 @@ public extension GiphyResponseDTO {
 }
 
 // MARK: - Mappings to Domain
-public extension GiphyResponseDTO {
-    func toDomain() -> GiphyPage {
-        GiphyPage(totalCount: pagination.totalCount, count: pagination.count, offset: pagination.offset, giphy: data.map { $0.toDomain() })
+public extension GiphyFeedResponseDTO {
+    func toDomain() -> GiphyFeedPage {
+        GiphyFeedPage(totalCount: pagination.totalCount, count: pagination.count, offset: pagination.offset, giphy: data.map { $0.toDomain() })
     }
 }
 
-extension GiphyResponseDTO.GiphyDataDTO {
-    func toDomain() -> Giphy {
-        Giphy(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user.toDomain())
+extension GiphyFeedResponseDTO.GiphyDataDTO {
+    func toDomain() -> GiphyFeed {
+        GiphyFeed(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user.toDomain())
     }
 }
 
-extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO {
-    func toDomain() -> GiphyImages {
-        GiphyImages(original: original.toDomain(), small: small.toDomain())
+extension GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO {
+    func toDomain() -> GiphyFeedImages {
+        GiphyFeedImages(original: original.toDomain(), small: small.toDomain())
     }
 }
 
-extension GiphyResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO {
-    func toDomain() -> GiphyImageMetadata {
-        GiphyImageMetadata(height: height, width: width, url: url)
+extension GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO {
+    func toDomain() -> GiphyFeedImageMetadata {
+        GiphyFeedImageMetadata(height: height, width: width, url: url)
     }
 }
 
-extension GiphyResponseDTO.GiphyDataDTO.GiphyUserDTO {
-    func toDomain() -> GiphyUser {
-        GiphyUser(username: username, displayName: displayName)
+extension GiphyFeedResponseDTO.GiphyDataDTO.GiphyUserDTO {
+    func toDomain() -> GiphyFeedUser {
+        GiphyFeedUser(username: username, displayName: displayName)
     }
 }

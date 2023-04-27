@@ -145,7 +145,7 @@ final class NetworkServiceTests: XCTestCase {
     private class MockEndPoint: Requestable {
         var path: String
         var method: HTTPMethodType
-        var queryParameters: [String : String] = [:]
+        var queryParameters: [String : Any] = [:]
         
         init(path: String, method: HTTPMethodType) {
             self.path = path

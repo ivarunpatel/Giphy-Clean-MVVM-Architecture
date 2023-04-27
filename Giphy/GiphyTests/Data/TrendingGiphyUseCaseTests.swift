@@ -13,7 +13,7 @@ final class TrendingGiphyUseCaseTests: XCTestCase {
     func test_execute_deliversTrendingGiphy() {
         let (sut, repository) = makeSUT()
         
-        let expectedResult = GiphyPage(totalCount: 20, count: 10, offset: 0, giphy: [Giphy(id: "1", title: "title", datetime: "any time", images: GiphyImages(original: GiphyImageMetadata(height: "500", width: "500", url: anyURL()), small: GiphyImageMetadata(height: "100", width: "100", url: anyURL())), user: GiphyUser(username: "test", displayName: "test_name"))])
+        let expectedResult = GiphyFeedPage(totalCount: 20, count: 10, offset: 0, giphy: [GiphyFeed(id: "1", title: "title", datetime: "any time", images: GiphyFeedImages(original: GiphyFeedImageMetadata(height: "500", width: "500", url: anyURL()), small: GiphyFeedImageMetadata(height: "100", width: "100", url: anyURL())), user: GiphyFeedUser(username: "test", displayName: "test_name"))])
         
         let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10)
         expect(sut: sut, requestValue: requestValue, toCompleteWith: .success(expectedResult)) {
@@ -35,13 +35,13 @@ final class TrendingGiphyUseCaseTests: XCTestCase {
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (useCase: any TrendingGiphyUseCase, repository: TrendingGiphyRepositorySpy) {
         let repository = TrendingGiphyRepositorySpy()
-        let useCase = DefaultTrendingGiphyUseCase(trendingGiphyRepository: repository)
+        let useCase = TrendingGiphyUseCaseLoader(trendingGiphyRepository: repository)
         trackForMemoryLeaks(repository, file: file, line: line)
         trackForMemoryLeaks(useCase, file: file, line: line)
         return (useCase, repository)
     }
     
-    private func expect(sut: any TrendingGiphyUseCase, requestValue: TrendingGiphyUseCaseRequestValue, toCompleteWith expectedResult: Result<GiphyPage, Error>, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(sut: any TrendingGiphyUseCase, requestValue: TrendingGiphyUseCaseRequestValue, toCompleteWith expectedResult: Result<GiphyFeedPage, Error>, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         
         let expectation = expectation(description: "Waiting for completion")
         _ = sut.execute(requestValue: requestValue) { receivedResult in
@@ -70,7 +70,7 @@ final class TrendingGiphyUseCaseTests: XCTestCase {
             return nil
         }
         
-        func complete(with giphyPage: GiphyPage, at index: Int = 0) {
+        func complete(with giphyPage: GiphyFeedPage, at index: Int = 0) {
             receivedMessages[index](.success(giphyPage))
         }
         

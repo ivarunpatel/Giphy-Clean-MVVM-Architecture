@@ -8,6 +8,6 @@
 import Foundation
 
 public protocol TrendingGiphyRepository {
-    typealias Result = Swift.Result<GiphyPage, Error>
+    typealias Result = Swift.Result<GiphyFeedPage, Error>
     func fetchTrendingGiphyList(limit: Int, completion: @escaping (Result) -> Void) -> Cancellable?
 }
