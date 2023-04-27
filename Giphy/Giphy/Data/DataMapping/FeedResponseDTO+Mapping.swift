@@ -1,5 +1,5 @@
 //
-//  GiphyFeedResponseDTO+Mapping.swift
+//  FeedResponseDTO+Mapping.swift
 //  Giphy
 //
 //  Created by Varun on 19/04/23.
@@ -9,25 +9,25 @@ import Foundation
 
 // MARK: - Data Transfer Object
 
-public struct GiphyFeedResponseDTO: Decodable {
-    public let data: [GiphyDataDTO]
-    public let pagination: PaginationDTO
+public struct FeedResponseDTO: Decodable {
+    public let data: [FeedDataDTO]
+    public let pagination: FeedPaginationDTO
     
-    public init(data: [GiphyDataDTO], pagination: PaginationDTO) {
+    public init(data: [FeedDataDTO], pagination: FeedPaginationDTO) {
         self.data = data
         self.pagination = pagination
     }
 }
 
-public extension GiphyFeedResponseDTO {
-    struct GiphyDataDTO: Decodable {
+public extension FeedResponseDTO {
+    struct FeedDataDTO: Decodable {
         let id: String
         let title: String
         let datetime: String
-        let images: GiphyImagesDTO
-        let user: GiphyUserDTO
+        let images: FeedImagesDTO
+        let user: FeedUserDTO
         
-        public init(id: String, title: String, datetime: String, images: GiphyImagesDTO, user: GiphyUserDTO) {
+        public init(id: String, title: String, datetime: String, images: FeedImagesDTO, user: FeedUserDTO) {
             self.id = id
             self.title = title
             self.datetime = datetime
@@ -43,11 +43,11 @@ public extension GiphyFeedResponseDTO {
             case user
         }
         
-        public struct GiphyImagesDTO: Decodable {
-            let original: GiphyImageMetadataDTO
-            let small: GiphyImageMetadataDTO
+        public struct FeedImagesDTO: Decodable {
+            let original: FeedImageMetadataDTO
+            let small: FeedImageMetadataDTO
             
-            public init(original: GiphyImageMetadataDTO, small: GiphyImageMetadataDTO) {
+            public init(original: FeedImageMetadataDTO, small: FeedImageMetadataDTO) {
                 self.original = original
                 self.small = small
             }
@@ -57,7 +57,7 @@ public extension GiphyFeedResponseDTO {
                 case small = "fixed_width_small"
             }
             
-            public struct GiphyImageMetadataDTO: Decodable {
+            public struct FeedImageMetadataDTO: Decodable {
                 let height: String
                 let width: String
                 let url: URL
@@ -70,7 +70,7 @@ public extension GiphyFeedResponseDTO {
             }
         }
         
-        public struct GiphyUserDTO: Decodable {
+        public struct FeedUserDTO: Decodable {
             let username: String
             let displayName: String
             
@@ -86,7 +86,7 @@ public extension GiphyFeedResponseDTO {
         }
     }
     
-    struct PaginationDTO: Decodable {
+    struct FeedPaginationDTO: Decodable {
         let totalCount: Int
         let count: Int
         let offset: Int
@@ -106,32 +106,32 @@ public extension GiphyFeedResponseDTO {
 }
 
 // MARK: - Mappings to Domain
-public extension GiphyFeedResponseDTO {
-    func toDomain() -> GiphyFeedPage {
-        GiphyFeedPage(totalCount: pagination.totalCount, count: pagination.count, offset: pagination.offset, giphy: data.map { $0.toDomain() })
+public extension FeedResponseDTO {
+    func toDomain() -> FeedPage {
+        FeedPage(totalCount: pagination.totalCount, count: pagination.count, offset: pagination.offset, giphy: data.map { $0.toDomain() })
     }
 }
 
-extension GiphyFeedResponseDTO.GiphyDataDTO {
-    func toDomain() -> GiphyFeed {
-        GiphyFeed(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user.toDomain())
+extension FeedResponseDTO.FeedDataDTO {
+    func toDomain() -> Feed {
+        Feed(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user.toDomain())
     }
 }
 
-extension GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO {
-    func toDomain() -> GiphyFeedImages {
-        GiphyFeedImages(original: original.toDomain(), small: small.toDomain())
+extension FeedResponseDTO.FeedDataDTO.FeedImagesDTO {
+    func toDomain() -> FeedImages {
+        FeedImages(original: original.toDomain(), small: small.toDomain())
     }
 }
 
-extension GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO {
-    func toDomain() -> GiphyFeedImageMetadata {
-        GiphyFeedImageMetadata(height: height, width: width, url: url)
+extension FeedResponseDTO.FeedDataDTO.FeedImagesDTO.FeedImageMetadataDTO {
+    func toDomain() -> FeedImageMetadata {
+        FeedImageMetadata(height: height, width: width, url: url)
     }
 }
 
-extension GiphyFeedResponseDTO.GiphyDataDTO.GiphyUserDTO {
-    func toDomain() -> GiphyFeedUser {
-        GiphyFeedUser(username: username, displayName: displayName)
+extension FeedResponseDTO.FeedDataDTO.FeedUserDTO {
+    func toDomain() -> FeedUser {
+        FeedUser(username: username, displayName: displayName)
     }
 }

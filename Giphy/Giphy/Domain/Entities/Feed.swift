@@ -7,14 +7,14 @@
 
 import Foundation
 
-public struct GiphyFeed: Equatable {
+public struct Feed: Equatable {
     public let id: String
     public let title: String
     public let datetime: String
-    public let images: GiphyFeedImages
-    public let user: GiphyFeedUser
+    public let images: FeedImages
+    public let user: FeedUser
     
-    public init(id: String, title: String, datetime: String, images: GiphyFeedImages, user: GiphyFeedUser) {
+    public init(id: String, title: String, datetime: String, images: FeedImages, user: FeedUser) {
         self.id = id
         self.title = title
         self.datetime = datetime
@@ -23,17 +23,17 @@ public struct GiphyFeed: Equatable {
     }
 }
 
-public struct GiphyFeedImages: Equatable {
-    public let original: GiphyFeedImageMetadata
-    public let small: GiphyFeedImageMetadata
+public struct FeedImages: Equatable {
+    public let original: FeedImageMetadata
+    public let small: FeedImageMetadata
     
-    public init(original: GiphyFeedImageMetadata, small: GiphyFeedImageMetadata) {
+    public init(original: FeedImageMetadata, small: FeedImageMetadata) {
         self.original = original
         self.small = small
     }
 }
 
-public struct GiphyFeedImageMetadata: Equatable {
+public struct FeedImageMetadata: Equatable {
     public let height: String
     public let width: String
     public let url: URL
@@ -45,7 +45,7 @@ public struct GiphyFeedImageMetadata: Equatable {
     }
 }
 
-public struct GiphyFeedUser: Equatable {
+public struct FeedUser: Equatable {
     public let username: String
     public let displayName: String
     
@@ -55,13 +55,13 @@ public struct GiphyFeedUser: Equatable {
     }
 }
 
-public struct GiphyFeedPage: Equatable {
+public struct FeedPage: Equatable {
     public let totalCount: Int
     public let count: Int
     public let offset: Int
-    public let giphy: [GiphyFeed]
+    public let giphy: [Feed]
     
-    public init(totalCount: Int, count: Int, offset: Int, giphy: [GiphyFeed]) {
+    public init(totalCount: Int, count: Int, offset: Int, giphy: [Feed]) {
         self.totalCount = totalCount
         self.count = count
         self.offset = offset

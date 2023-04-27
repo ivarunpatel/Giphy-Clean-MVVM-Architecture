@@ -1,5 +1,5 @@
 //
-//  TrendingGiphyRepositoryTests.swift
+//  TrendingRepositoryTests.swift
 //  GiphyTests
 //
 //  Created by Varun on 19/04/23.
@@ -8,12 +8,12 @@
 import XCTest
 import Giphy
 
-final class TrendingGiphyRepositoryTests: XCTestCase {
+final class TrendingRepositoryTests: XCTestCase {
     
     func test_fetchTrendingGiphyList_loadTrendingGiphyList() {
         let (sut, dataLoader) = makeSUT()
         
-        let expectedModel = GiphyFeedResponseDTO(data: [GiphyFeedResponseDTO.GiphyDataDTO(id: "1", title: "title", datetime: "any time", images: GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO(original: GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "500", width: "500", url: anyURL()), small: GiphyFeedResponseDTO.GiphyDataDTO.GiphyImagesDTO.GiphyImageMetadataDTO(height: "100", width: "100", url: anyURL())), user: GiphyFeedResponseDTO.GiphyDataDTO.GiphyUserDTO(username: "test_user", displayName: "test user"))], pagination: GiphyFeedResponseDTO.PaginationDTO(totalCount: 10, count: 5, offset: 0))
+        let expectedModel = FeedResponseDTO(data: [FeedResponseDTO.FeedDataDTO(id: "1", title: "title", datetime: "any time", images: FeedResponseDTO.FeedDataDTO.FeedImagesDTO(original: FeedResponseDTO.FeedDataDTO.FeedImagesDTO.FeedImageMetadataDTO(height: "500", width: "500", url: anyURL()), small: FeedResponseDTO.FeedDataDTO.FeedImagesDTO.FeedImageMetadataDTO(height: "100", width: "100", url: anyURL())), user: FeedResponseDTO.FeedDataDTO.FeedUserDTO(username: "test_user", displayName: "test user"))], pagination: FeedResponseDTO.FeedPaginationDTO(totalCount: 10, count: 5, offset: 0))
         
         expect(sut: sut, toCompleteWith: .success(expectedModel.toDomain())) {
             dataLoader.complete(with: expectedModel)
@@ -30,15 +30,15 @@ final class TrendingGiphyRepositoryTests: XCTestCase {
     
     // MARK: - Helpers
 
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TrendingGiphyRepositoryLoader, dataLoader: DataTransferServiceLoaderSpy<GiphyFeedResponseDTO>) {
-        let dataTransferServiceLoader = DataTransferServiceLoaderSpy<GiphyFeedResponseDTO>()
-        let sut = TrendingGiphyRepositoryLoader(dataTransferService: dataTransferServiceLoader)
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: TrendingRepositoryLoader, dataLoader: DataTransferServiceLoaderSpy<FeedResponseDTO>) {
+        let dataTransferServiceLoader = DataTransferServiceLoaderSpy<FeedResponseDTO>()
+        let sut = TrendingRepositoryLoader(dataTransferService: dataTransferServiceLoader)
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(dataTransferServiceLoader, file: file, line: line)
         return (sut, dataTransferServiceLoader)
     }
     
-    private func expect(sut: TrendingGiphyRepositoryLoader, toCompleteWith expectedResult: TrendingGiphyRepository.Result, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(sut: TrendingRepositoryLoader, toCompleteWith expectedResult: TrendingRepository.Result, action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         let expectation = expectation(description: "Waiting for completion")
        _ = sut.fetchTrendingGiphyList(limit: 10) { receivedResult in
             switch (receivedResult, expectedResult) {
@@ -67,7 +67,7 @@ final class TrendingGiphyRepositoryTests: XCTestCase {
             return nil
         }
         
-        func complete(with model: GiphyFeedResponseDTO, at index: Int = 0) {
+        func complete(with model: FeedResponseDTO, at index: Int = 0) {
             receivedMessages[index](.success(model as! R))
         }
         
