@@ -41,12 +41,24 @@ public struct FeedListItemViewModel: Equatable {
     }
 }
 
+protocol FeedViewModelInput {
+    func viewDidLoad()
+    func didLoadNextPage()
+    func didRefreshFeed()
+}
+
+protocol FeedViewModelOutput {
+    var items: Observable<[FeedListItemViewModel]> { get }
+    var error: Observable<String> { get }
+    var state: Observable<FeedViewModelState?> { get }
+}
+
 enum FeedViewModelState: Equatable {
     case loading
     case nextPage
 }
 
-final class FeedViewModel {
+final class FeedViewModel: FeedViewModelOutput {
     
     let useCase: TrendingUseCase
     
@@ -66,19 +78,6 @@ final class FeedViewModel {
         (count + offSet) < totalCount
     }
     private var pages: [FeedPage] = []
-    
-    func viewDidLoad() {
-        loadFeed(state: .loading)
-    }
-    
-    func didLoadNextPage() {
-        loadFeed(state: .nextPage)
-    }
-    
-    func didRefreshFeed() {
-        resetPages()
-        loadFeed(state: .loading)
-    }
     
     private func loadFeed(state: FeedViewModelState) {
         self.state.value = state
@@ -115,6 +114,21 @@ final class FeedViewModel {
     
     private func handleError(error: Error) {
         self.error.value = error.isInternetConnectionError ? "No internet connection" : "Failed to load feed"
+    }
+}
+
+extension FeedViewModel: FeedViewModelInput {
+    func viewDidLoad() {
+        loadFeed(state: .loading)
+    }
+    
+    func didLoadNextPage() {
+        loadFeed(state: .nextPage)
+    }
+    
+    func didRefreshFeed() {
+        resetPages()
+        loadFeed(state: .loading)
     }
 }
 
