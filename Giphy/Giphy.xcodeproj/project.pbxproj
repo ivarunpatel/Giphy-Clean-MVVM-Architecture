@@ -31,6 +31,7 @@
 		8B5C665829FBE7E2006C0A57 /* GiphyAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5C665729FBE7E2006C0A57 /* GiphyAppUITests.swift */; };
 		8B5C665A29FBE7E2006C0A57 /* GiphyAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5C665929FBE7E2006C0A57 /* GiphyAppUITestsLaunchTests.swift */; };
 		8B5C666529FBE82C006C0A57 /* GiphyAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5C666429FBE82C006C0A57 /* GiphyAppTests.swift */; };
+		8B5C666829FBE8A3006C0A57 /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B5C666729FBE8A3006C0A57 /* AppConfiguration.swift */; };
 		8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B61ED2529EEA03000969E04 /* DataTransferService.swift */; };
 		8B8ACBD129FA57C5009AC12E /* FeedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */; };
 		8B8ACBD429FA7856009AC12E /* ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8ACBD329FA7856009AC12E /* ConnectionError.swift */; };
@@ -105,6 +106,7 @@
 		8B5C665729FBE7E2006C0A57 /* GiphyAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyAppUITests.swift; sourceTree = "<group>"; };
 		8B5C665929FBE7E2006C0A57 /* GiphyAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		8B5C666429FBE82C006C0A57 /* GiphyAppTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GiphyAppTests.swift; sourceTree = "<group>"; };
+		8B5C666729FBE8A3006C0A57 /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		8B61ED2529EEA03000969E04 /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
 		8B8ACBD029FA57C4009AC12E /* FeedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModelTests.swift; sourceTree = "<group>"; };
 		8B8ACBD329FA7856009AC12E /* ConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionError.swift; sourceTree = "<group>"; };
@@ -309,8 +311,7 @@
 		8B5C663529FBE7E0006C0A57 /* GiphyApp */ = {
 			isa = PBXGroup;
 			children = (
-				8B5C663629FBE7E0006C0A57 /* AppDelegate.swift */,
-				8B5C663829FBE7E0006C0A57 /* SceneDelegate.swift */,
+				8B5C666629FBE88F006C0A57 /* Application */,
 				8B5C663A29FBE7E0006C0A57 /* ViewController.swift */,
 				8B5C663C29FBE7E0006C0A57 /* Main.storyboard */,
 				8B5C663F29FBE7E1006C0A57 /* Assets.xcassets */,
@@ -335,6 +336,16 @@
 				8B5C665929FBE7E2006C0A57 /* GiphyAppUITestsLaunchTests.swift */,
 			);
 			path = GiphyAppUITests;
+			sourceTree = "<group>";
+		};
+		8B5C666629FBE88F006C0A57 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				8B5C663629FBE7E0006C0A57 /* AppDelegate.swift */,
+				8B5C663829FBE7E0006C0A57 /* SceneDelegate.swift */,
+				8B5C666729FBE8A3006C0A57 /* AppConfiguration.swift */,
+			);
+			path = Application;
 			sourceTree = "<group>";
 		};
 		8B8ACBD529FA78B5009AC12E /* Extensions */ = {
@@ -704,6 +715,7 @@
 			files = (
 				8B5C663B29FBE7E0006C0A57 /* ViewController.swift in Sources */,
 				8B5C663729FBE7E0006C0A57 /* AppDelegate.swift in Sources */,
+				8B5C666829FBE8A3006C0A57 /* AppConfiguration.swift in Sources */,
 				8B5C663929FBE7E0006C0A57 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -843,13 +855,16 @@
 		8B5C665C29FBE7E2006C0A57 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				API_KEY = 1lmk1sCPYN0vyC7YwtkdJnizOjIVcGH7;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				BASE_URL = "https://api.giphy.com";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3F68V6NQG;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GiphyApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -873,13 +888,16 @@
 		8B5C665D29FBE7E2006C0A57 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				API_KEY = 1lmk1sCPYN0vyC7YwtkdJnizOjIVcGH7;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				BASE_URL = "https://api.giphy.com";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M3F68V6NQG;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GiphyApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
