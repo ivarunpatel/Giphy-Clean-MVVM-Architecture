@@ -21,5 +21,9 @@ func anyData() -> Data {
 }
 
 func makeFeedItem() -> FeedPage {
-    FeedPage(totalCount: 20, count: 10, offset: 0, giphy: [Feed(id: "1", title: "title", datetime: "any time", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))])
+    FeedPage(totalCount: 20, count: 10, offset: 0, giphy: [Feed(id: anyRandomId(), title: "title", datetime: "any time", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))])
+}
+
+func anyRandomId() -> String {
+    UUID().uuidString
 }

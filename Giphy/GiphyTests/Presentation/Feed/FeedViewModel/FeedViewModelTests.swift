@@ -68,6 +68,11 @@ final class FeedViewModel {
         loadFeed()
     }
     
+    func didRefreshFeed() {
+        resetPages()
+        loadFeed()
+    }
+    
     private func loadFeed() {
         _ = useCase.execute(requestValue: .init(limit: parPageItem)) { [weak self] result in
             guard let self = self else { return }
@@ -89,6 +94,15 @@ final class FeedViewModel {
         items.value = pages.flatMap { $0.giphy }.map(FeedListItemViewModel.init)
     }
     
+    private func resetPages() {
+        totalCount = 0
+        count = 0
+        offSet = 0
+        
+        pages.removeAll()
+        items.value.removeAll()
+    }
+    
     private func handleError(error: Error) {
         self.error.value = error.isInternetConnectionError ? "No internet connection" : "Failed to load feed"
     }
@@ -107,8 +121,8 @@ final class FeedViewModelTests: XCTestCase {
         
         sut.viewDidLoad()
         
-        let (feed, feedListItemViewModel) = makeItem(id: "123")
-        let feedPage = makeItemWithPage(totalCount: 5, count: 2, offset: 0, feed: [feed])
+        let (feed, feedListItemViewModel) = makeItem()
+        let feedPage = makeFeedPage(totalCount: 5, count: 2, offset: 0, feed: [feed])
         useCase.complete(with: feedPage)
         
         XCTAssertEqual(sut.items.value, [feedListItemViewModel])
@@ -141,21 +155,36 @@ final class FeedViewModelTests: XCTestCase {
 
         sut.viewDidLoad()
 
-        let (feed1, feedListItemViewModel1) = makeItem(id: "123")
-        let (feed2, feedListItemViewModel2) = makeItem(id: "456")
-        let firstPageItems = makeItemWithPage(totalCount: 4, count: 2, offset: 0, feed: [feed1, feed2])
+        let (firstPageItems, firstPageItemsViewModels) = makePageWithTwoItems(offset: 0)
         useCase.complete(with: firstPageItems)
-
-        XCTAssertEqual(sut.items.value, [feedListItemViewModel1, feedListItemViewModel2])
 
         sut.didLoadNextPage()
 
-        let (feed3, feedListItemViewModel3) = makeItem(id: "789")
-        let (feed4, feedListItemViewModel4) = makeItem(id: "101112")
-        let secondPageItems = makeItemWithPage(totalCount: 4, count: 2, offset: 2, feed: [feed3, feed4])
+        let (secondPageItems, secondPageItemsViewModels) = makePageWithTwoItems(offset: 2)
         useCase.complete(with: secondPageItems)
 
-        XCTAssertEqual(sut.items.value, [feedListItemViewModel1, feedListItemViewModel2, feedListItemViewModel3, feedListItemViewModel4])
+        let accumulatedItemsViewModels = firstPageItemsViewModels + secondPageItemsViewModels
+        XCTAssertEqual(sut.items.value, accumulatedItemsViewModels)
+    }
+    
+    func test_didRefreshFeed_resetPageSetThenloadFirstPage() {
+        let (sut, useCase) = makeSUT()
+        
+        sut.viewDidLoad()
+        
+        let (firstPageItems, firstPageItemsViewModels) = makePageWithTwoItems(offset: 0)
+        useCase.complete(with: firstPageItems)
+        
+        sut.didLoadNextPage()
+        
+        let (secondPageItems, _) = makePageWithTwoItems(offset: 2)
+        useCase.complete(with: secondPageItems)
+        
+        sut.didRefreshFeed()
+        
+        useCase.complete(with: firstPageItems)
+        
+        XCTAssertEqual(sut.items.value, firstPageItemsViewModels)
     }
     
     // MARK: - Helpers
@@ -168,14 +197,21 @@ final class FeedViewModelTests: XCTestCase {
         return (sut, useCase)
     }
     
-    private func makeItemWithPage(totalCount: Int, count: Int, offset: Int, feed: [Feed]) -> FeedPage {
+    private func makeFeedPage(totalCount: Int, count: Int, offset: Int, feed: [Feed]) -> FeedPage {
         FeedPage(totalCount: totalCount, count: count, offset: offset, giphy: feed)
     }
     
-    private func makeItem(id: String) -> (Feed, FeedListItemViewModel) {
-        let feed = Feed(id: id, title: "title", datetime: "2021-05-21 19:17:34", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))
+    private func makeItem() -> (Feed, FeedListItemViewModel) {
+        let feed = Feed(id: anyRandomId(), title: "title", datetime: "2021-05-21 19:17:34", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))
         let feedListItemViewModel = FeedListItemViewModel(feed: feed)
         return (feed, feedListItemViewModel)
+    }
+    
+    private func makePageWithTwoItems(offset: Int) -> (feedPage: FeedPage, feedListItemViewModels: [FeedListItemViewModel]) {
+        let (feed1, feedListItemViewModel1) = makeItem()
+        let (feed2, feedListItemViewModel2) = makeItem()
+        let feedPage = makeFeedPage(totalCount: 4, count: 2, offset: offset, feed: [feed1, feed2])
+        return (feedPage, [feedListItemViewModel1, feedListItemViewModel2])
     }
     
     private final class TrendingUseCaseSpy: TrendingUseCase {
