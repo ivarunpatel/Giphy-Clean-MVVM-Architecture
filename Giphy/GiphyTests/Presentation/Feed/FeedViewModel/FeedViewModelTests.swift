@@ -11,7 +11,7 @@ import Giphy
 public struct FeedListItemViewModel: Equatable {
     public let id: String
     public let title: String
-    public private(set) var datetime: String = ""
+    public private(set) var datetime: String?
     public let images: FeedImages
     public let user: FeedUser?
     
@@ -23,13 +23,14 @@ public struct FeedListItemViewModel: Equatable {
         datetime = formatDateTime(datetime: feed.datetime)
     }
     
-    private func formatDateTime(datetime: String) -> String {
+    private func formatDateTime(datetime: String?) -> String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
-        if let date = dateFromString(dateTime: datetime) {
+        if let dateTimeString = datetime,
+           let date = dateFromString(dateTime: dateTimeString) {
             return formatter.localizedString(for: date, relativeTo: Date())
         } else {
-            return "Invalid Date"
+            return ""
         }
     }
     

@@ -10,11 +10,11 @@ import Foundation
 public struct Feed: Equatable {
     public let id: String
     public let title: String
-    public let datetime: String
+    public let datetime: String?
     public let images: FeedImages
     public let user: FeedUser?
     
-    public init(id: String, title: String, datetime: String, images: FeedImages, user: FeedUser?) {
+    public init(id: String, title: String, datetime: String?, images: FeedImages, user: FeedUser?) {
         self.id = id
         self.title = title
         self.datetime = datetime
