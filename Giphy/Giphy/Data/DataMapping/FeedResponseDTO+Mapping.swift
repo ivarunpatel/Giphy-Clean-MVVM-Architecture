@@ -25,9 +25,9 @@ public extension FeedResponseDTO {
         let title: String
         let datetime: String
         let images: FeedImagesDTO
-        let user: FeedUserDTO
+        let user: FeedUserDTO?
         
-        public init(id: String, title: String, datetime: String, images: FeedImagesDTO, user: FeedUserDTO) {
+        public init(id: String, title: String, datetime: String, images: FeedImagesDTO, user: FeedUserDTO?) {
             self.id = id
             self.title = title
             self.datetime = datetime
@@ -114,7 +114,7 @@ public extension FeedResponseDTO {
 
 extension FeedResponseDTO.FeedDataDTO {
     func toDomain() -> Feed {
-        Feed(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user.toDomain())
+        Feed(id: id, title: title, datetime: datetime, images: images.toDomain(), user: user?.toDomain())
     }
 }
 

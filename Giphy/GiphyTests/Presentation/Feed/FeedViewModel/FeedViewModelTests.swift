@@ -8,6 +8,38 @@
 import XCTest
 import Giphy
 
+public struct FeedListItemViewModel: Equatable {
+    public let id: String
+    public let title: String
+    public private(set) var datetime: String = ""
+    public let images: FeedImages
+    public let user: FeedUser?
+    
+    public init(feed: Feed) {
+        id = feed.id
+        title = feed.title
+        images = feed.images
+        user = feed.user
+        datetime = formatDateTime(datetime: feed.datetime)
+    }
+    
+    private func formatDateTime(datetime: String) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        if let date = dateFromString(dateTime: datetime) {
+            return formatter.localizedString(for: date, relativeTo: Date())
+        } else {
+            return "Invalid Date"
+        }
+    }
+    
+    private func dateFromString(dateTime: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd HH:mm:ss"
+        return dateFormatter.date(from: dateTime)
+    }
+}
+
 final class FeedViewModel {
     
     let useCase: TrendingUseCase
@@ -16,7 +48,7 @@ final class FeedViewModel {
         self.useCase = useCase
     }
     
-    var items: Observable<FeedPage?> = Observable(.none)
+    var items: Observable<[FeedListItemViewModel]> = Observable([])
     var error: Observable<String> = Observable("")
     
     private let parPageItem = 10
@@ -41,10 +73,6 @@ final class FeedViewModel {
             guard let self = self else { return }
             switch result {
             case .success(let feedPage):
-                totalCount = feedPage.totalCount
-                count = feedPage.count
-                offSet = feedPage.offset
-                
                 appendPage(feedPage: feedPage)
             case .failure(let error):
                 handleError(error: error)
@@ -53,11 +81,12 @@ final class FeedViewModel {
     }
     
     private func appendPage(feedPage: FeedPage) {
+        totalCount = feedPage.totalCount
+        count = feedPage.count
+        offSet = feedPage.offset
+        
         pages = pages.filter { $0.offset != feedPage.offset } + [feedPage]
-        var lastPage = pages.last
-        let feedItems = pages.flatMap { $0.giphy }
-        lastPage = FeedPage(totalCount: lastPage?.totalCount ?? 0, count: lastPage?.count ?? 0, offset: lastPage?.offset ?? 0, giphy: feedItems)
-        items.value = lastPage
+        items.value = pages.flatMap { $0.giphy }.map(FeedListItemViewModel.init)
     }
     
     private func handleError(error: Error) {
@@ -78,10 +107,11 @@ final class FeedViewModelTests: XCTestCase {
         
         sut.viewDidLoad()
         
-        let expectedValue = makeFeedItem()
-        useCase.complete(with: expectedValue)
+        let (feed, feedListItemViewModel) = makeItem(id: "123")
+        let feedPage = makeItemWithPage(totalCount: 5, count: 2, offset: 0, feed: [feed])
+        useCase.complete(with: feedPage)
         
-        XCTAssertEqual(sut.items.value, expectedValue)
+        XCTAssertEqual(sut.items.value, [feedListItemViewModel])
     }
     
     func test_viewDidLoad_returnNoInternetConnectionErrorMessageWhenUseCaseFailWithNetworkError() {
@@ -111,22 +141,21 @@ final class FeedViewModelTests: XCTestCase {
 
         sut.viewDidLoad()
 
-        let feed1 = makeItem(id: "123")
-        let feed2 = makeItem(id: "456")
+        let (feed1, feedListItemViewModel1) = makeItem(id: "123")
+        let (feed2, feedListItemViewModel2) = makeItem(id: "456")
         let firstPageItems = makeItemWithPage(totalCount: 4, count: 2, offset: 0, feed: [feed1, feed2])
         useCase.complete(with: firstPageItems)
 
-        XCTAssertEqual(sut.items.value, firstPageItems)
+        XCTAssertEqual(sut.items.value, [feedListItemViewModel1, feedListItemViewModel2])
 
         sut.didLoadNextPage()
 
-        let feed3 = makeItem(id: "789")
-        let feed4 = makeItem(id: "101112")
+        let (feed3, feedListItemViewModel3) = makeItem(id: "789")
+        let (feed4, feedListItemViewModel4) = makeItem(id: "101112")
         let secondPageItems = makeItemWithPage(totalCount: 4, count: 2, offset: 2, feed: [feed3, feed4])
         useCase.complete(with: secondPageItems)
 
-        let accumulatedItems = FeedPage(totalCount: secondPageItems.totalCount, count: secondPageItems.count, offset: secondPageItems.offset, giphy: [feed1, feed2, feed3, feed4])
-        XCTAssertEqual(sut.items.value, accumulatedItems)
+        XCTAssertEqual(sut.items.value, [feedListItemViewModel1, feedListItemViewModel2, feedListItemViewModel3, feedListItemViewModel4])
     }
     
     // MARK: - Helpers
@@ -143,8 +172,10 @@ final class FeedViewModelTests: XCTestCase {
         FeedPage(totalCount: totalCount, count: count, offset: offset, giphy: feed)
     }
     
-    private func makeItem(id: String) -> Feed {
-        Feed(id: id, title: "title", datetime: "any time", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))
+    private func makeItem(id: String) -> (Feed, FeedListItemViewModel) {
+        let feed = Feed(id: id, title: "title", datetime: "2021-05-21 19:17:34", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))
+        let feedListItemViewModel = FeedListItemViewModel(feed: feed)
+        return (feed, feedListItemViewModel)
     }
     
     private final class TrendingUseCaseSpy: TrendingUseCase {
