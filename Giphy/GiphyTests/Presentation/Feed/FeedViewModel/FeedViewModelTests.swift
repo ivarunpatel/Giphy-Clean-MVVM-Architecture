@@ -40,6 +40,11 @@ public struct FeedListItemViewModel: Equatable {
     }
 }
 
+enum FeedViewModelState: Equatable {
+    case loading
+    case nextPage
+}
+
 final class FeedViewModel {
     
     let useCase: TrendingUseCase
@@ -50,6 +55,7 @@ final class FeedViewModel {
     
     var items: Observable<[FeedListItemViewModel]> = Observable([])
     var error: Observable<String> = Observable("")
+    var state: Observable<FeedViewModelState?> = Observable(.none)
     
     private let parPageItem = 10
     private var totalCount = 0
@@ -61,19 +67,20 @@ final class FeedViewModel {
     private var pages: [FeedPage] = []
     
     func viewDidLoad() {
-        loadFeed()
+        loadFeed(state: .loading)
     }
     
     func didLoadNextPage() {
-        loadFeed()
+        loadFeed(state: .nextPage)
     }
     
     func didRefreshFeed() {
         resetPages()
-        loadFeed()
+        loadFeed(state: .loading)
     }
     
-    private func loadFeed() {
+    private func loadFeed(state: FeedViewModelState) {
+        self.state.value = state
         _ = useCase.execute(requestValue: .init(limit: parPageItem)) { [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -82,6 +89,8 @@ final class FeedViewModel {
             case .failure(let error):
                 handleError(error: error)
             }
+            
+            self.state.value = .none
         }
     }
     
@@ -119,13 +128,18 @@ final class FeedViewModelTests: XCTestCase {
     func test_viewDidLoad_loadItemsOnSuccessfulUseCaseExecution() {
         let (sut, useCase) = makeSUT()
         
+        XCTAssertEqual(sut.state.value, .none)
+        
         sut.viewDidLoad()
+        
+        XCTAssertEqual(sut.state.value, .loading)
         
         let (feed, feedListItemViewModel) = makeItem()
         let feedPage = makeFeedPage(totalCount: 5, count: 2, offset: 0, feed: [feed])
         useCase.complete(with: feedPage)
         
         XCTAssertEqual(sut.items.value, [feedListItemViewModel])
+        XCTAssertEqual(sut.state.value, .none)
     }
     
     func test_viewDidLoad_returnNoInternetConnectionErrorMessageWhenUseCaseFailWithNetworkError() {
@@ -153,38 +167,55 @@ final class FeedViewModelTests: XCTestCase {
     func test_didLoadNextPage_loadItemsFromNextPage() {
         let (sut, useCase) = makeSUT()
 
+        XCTAssertEqual(sut.state.value, .none)
+
         sut.viewDidLoad()
+        
+        XCTAssertEqual(sut.state.value, .loading)
 
         let (firstPageItems, firstPageItemsViewModels) = makePageWithTwoItems(offset: 0)
         useCase.complete(with: firstPageItems)
 
         sut.didLoadNextPage()
+        
+        XCTAssertEqual(sut.state.value, .nextPage)
 
         let (secondPageItems, secondPageItemsViewModels) = makePageWithTwoItems(offset: 2)
         useCase.complete(with: secondPageItems)
 
         let accumulatedItemsViewModels = firstPageItemsViewModels + secondPageItemsViewModels
+        
         XCTAssertEqual(sut.items.value, accumulatedItemsViewModels)
+        XCTAssertEqual(sut.state.value, .none)
     }
     
     func test_didRefreshFeed_resetPageSetThenloadFirstPage() {
         let (sut, useCase) = makeSUT()
         
+        XCTAssertEqual(sut.state.value, .none)
+
         sut.viewDidLoad()
         
+        XCTAssertEqual(sut.state.value, .loading)
+
         let (firstPageItems, firstPageItemsViewModels) = makePageWithTwoItems(offset: 0)
         useCase.complete(with: firstPageItems)
         
         sut.didLoadNextPage()
         
+        XCTAssertEqual(sut.state.value, .nextPage)
+
         let (secondPageItems, _) = makePageWithTwoItems(offset: 2)
         useCase.complete(with: secondPageItems)
         
         sut.didRefreshFeed()
         
+        XCTAssertEqual(sut.state.value, .loading)
+
         useCase.complete(with: firstPageItems)
         
         XCTAssertEqual(sut.items.value, firstPageItemsViewModels)
+        XCTAssertEqual(sut.state.value, .none)
     }
     
     // MARK: - Helpers
