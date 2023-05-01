@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  GiphyApp
+//  GiphyiOSApp
 //
 //  Created by Varun on 28/04/23.
 //

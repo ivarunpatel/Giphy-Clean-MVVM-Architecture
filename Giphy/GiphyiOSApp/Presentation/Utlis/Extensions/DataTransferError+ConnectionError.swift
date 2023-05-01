@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Giphy
 
 extension DataTransferError: ConnectionError {
    public var isInternetConnectionError: Bool {

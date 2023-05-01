@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import Giphy
+import GiphyiOSApp
 
 final class ObservableTests: XCTestCase {
     

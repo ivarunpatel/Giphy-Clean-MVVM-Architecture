@@ -1,13 +1,13 @@
 //
-//  GiphyAppUITestsLaunchTests.swift
-//  GiphyAppUITests
+//  GiphyiOSAppUITestsLaunchTests.swift
+//  GiphyiOSAppUITests
 //
 //  Created by Varun on 28/04/23.
 //
 
 import XCTest
 
-final class GiphyAppUITestsLaunchTests: XCTestCase {
+final class GiphyiOSAppUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
