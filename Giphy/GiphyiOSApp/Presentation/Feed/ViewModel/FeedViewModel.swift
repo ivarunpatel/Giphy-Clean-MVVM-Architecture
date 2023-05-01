@@ -8,13 +8,13 @@
 import Foundation
 import Giphy
 
-protocol FeedViewModelInput {
+public protocol FeedViewModelInput {
     func viewDidLoad()
     func didLoadNextPage()
     func didRefreshFeed()
 }
 
-protocol FeedViewModelOutput {
+public protocol FeedViewModelOutput {
     var items: Observable<[FeedListItemViewModel]> { get }
     var error: Observable<String> { get }
     var state: Observable<FeedViewModelState?> { get }
@@ -25,7 +25,9 @@ public enum FeedViewModelState: Equatable {
     case nextPage
 }
 
-final public class FeedViewModel: FeedViewModelOutput {
+public typealias FeedViewModellable = FeedViewModelInput & FeedViewModelOutput
+
+final public class FeedViewModel: FeedViewModellable {
     
     private let useCase: TrendingUseCase
     
@@ -84,7 +86,7 @@ final public class FeedViewModel: FeedViewModelOutput {
     }
 }
 
-extension FeedViewModel: FeedViewModelInput {
+extension FeedViewModel {
     public func viewDidLoad() {
         loadFeed(state: .loading)
     }
