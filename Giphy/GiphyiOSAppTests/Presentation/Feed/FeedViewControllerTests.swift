@@ -18,13 +18,23 @@ final class FeedViewController: UIViewController {
        self.viewModel = viewModel
     }
     
-    var refreshControl = UIRefreshControl()
+    var refreshControl: UIRefreshControl?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        viewModel?.viewDidLoad()
+        setupRefreshControl()
         bindViewModel()
+        viewModel?.viewDidLoad()
+    }
+    
+    private func setupRefreshControl() {
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(didPerformPullToRefresh), for: .valueChanged)
+    }
+    
+    @objc private func didPerformPullToRefresh() {
+        viewModel?.didRefreshFeed()
     }
     
     private func bindViewModel() {
@@ -32,9 +42,9 @@ final class FeedViewController: UIViewController {
             guard let self = self else { return }
             switch state {
             case .none:
-                refreshControl.endRefreshing()
+                refreshControl?.endRefreshing()
             case .loading:
-                refreshControl.beginRefreshing()
+                refreshControl?.beginRefreshing()
             case .nextPage:
                 break
             }
@@ -62,6 +72,12 @@ final class FeedViewControllerTests: XCTestCase {
         
         useCase.complete(with: anyFeedPage())
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator after feed request is completed")
+        
+        sut.refreshControl?.simulatePullToRefresh()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator on user initiated feed reload")
+        
+        useCase.complete(with: anyFeedPage())
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator user initiated feed reload is completed")
     }
     
     // MARK: - Helpers
@@ -107,6 +123,16 @@ final class FeedViewControllerTests: XCTestCase {
 
 extension FeedViewController {
     var isShowingLoadingIndicator: Bool {
-        refreshControl.isRefreshing
+        refreshControl?.isRefreshing == true
+    }
+}
+
+extension UIRefreshControl {
+    func simulatePullToRefresh() {
+        self.allTargets.forEach { target in
+            self.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach({ action in
+                (target as NSObject).perform(Selector(action))
+            })
+        }
     }
 }
