@@ -17,11 +17,28 @@ final class FeedViewController: UIViewController {
        self.init()
        self.viewModel = viewModel
     }
+    
+    var refreshControl = UIRefreshControl()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         viewModel?.viewDidLoad()
+        bindViewModel()
+    }
+    
+    private func bindViewModel() {
+        viewModel?.state.subscribe(listner: { [weak self] state in
+            guard let self = self else { return }
+            switch state {
+            case .none:
+                refreshControl.endRefreshing()
+            case .loading:
+                refreshControl.beginRefreshing()
+            case .nextPage:
+                break
+            }
+        })
     }
 }
 
@@ -29,10 +46,22 @@ final class FeedViewControllerTests: XCTestCase {
     
     func test_loadFeed_requestFeedData() {
         let (sut, useCase) = makeSUT()
-        
+        XCTAssertEqual(useCase.receivedMessages.count, 0, "Expected no feed loading request before view is loaded")
+
         sut.loadViewIfNeeded()
         
-        XCTAssertEqual(useCase.receivedMessages.count, 1)
+        XCTAssertEqual(useCase.receivedMessages.count, 1, "Expected a feed loading request after view is loaded")
+    }
+    
+    func test_loadingFeedIndicator_isVisibleWhileLoadingFeed() {
+        let (sut, useCase) = makeSUT()
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator before view is loaded")
+
+        sut.loadViewIfNeeded()
+        XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator after view is loaded")
+        
+        useCase.complete(with: anyFeedPage())
+        XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator after feed request is completed")
     }
     
     // MARK: - Helpers
@@ -44,6 +73,18 @@ final class FeedViewControllerTests: XCTestCase {
         trackForMemoryLeaks(viewModel, file: file, line: line)
         trackForMemoryLeaks(viewController, file: file, line: line)
         return (viewController, useCase)
+    }
+    
+    private func makeFeedPage(totalCount: Int, count: Int, offset: Int, feed: [Feed]) -> FeedPage {
+        FeedPage(totalCount: totalCount, count: count, offset: offset, giphy: feed)
+    }
+    
+    private func makeItem() -> Feed {
+        Feed(id: anyRandomId(), title: "title", datetime: "2021-05-21 19:17:34", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))
+    }
+    
+    private func anyFeedPage() -> FeedPage {
+        makeFeedPage(totalCount: 5, count: 2, offset: 0, feed: [makeItem()])
     }
 
     private final class TrendingUseCaseSpy: TrendingUseCase {
@@ -61,5 +102,11 @@ final class FeedViewControllerTests: XCTestCase {
         func complete(with feed: Error, at index: Int = 0) {
             receivedMessages[index](.failure(feed))
         }
+    }
+}
+
+extension FeedViewController {
+    var isShowingLoadingIndicator: Bool {
+        refreshControl.isRefreshing
     }
 }

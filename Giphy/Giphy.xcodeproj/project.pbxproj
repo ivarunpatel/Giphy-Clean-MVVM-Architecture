@@ -113,6 +113,7 @@
 		8B04723829EFF215000571F4 /* RepositoryTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryTask.swift; sourceTree = "<group>"; };
 		8B04723A29EFFCCE000571F4 /* TrendingGiphyUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingGiphyUseCaseTests.swift; sourceTree = "<group>"; };
 		8B04723D29F0031C000571F4 /* TrendingUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingUseCase.swift; sourceTree = "<group>"; };
+		8B0A2E292A00D2D10045A2F5 /* GiphyiOSApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = GiphyiOSApp.xctestplan; sourceTree = "<group>"; };
 		8B11FAF929EE5A1B003F4BDA /* NetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkService.swift; sourceTree = "<group>"; };
 		8B11FAFB29EE5FCC003F4BDA /* DataTransferServiceLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferServiceLoaderTests.swift; sourceTree = "<group>"; };
 		8B172B7D29E9217100924F44 /* Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
@@ -458,6 +459,7 @@
 		8BB0A68029E51894005777A8 = {
 			isa = PBXGroup;
 			children = (
+				8B0A2E292A00D2D10045A2F5 /* GiphyiOSApp.xctestplan */,
 				8B5C663529FBE7E0006C0A57 /* GiphyiOSApp */,
 				8B5C664C29FBE7E2006C0A57 /* GiphyiOSAppTests */,
 				8B5C665629FBE7E2006C0A57 /* GiphyiOSAppUITests */,

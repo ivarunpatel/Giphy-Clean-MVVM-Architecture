@@ -1,0 +1,39 @@
+{
+  "configurations" : [
+    {
+      "id" : "BA135DD3-1077-441F-A875-FCA17FBF2F4C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Giphy.xcodeproj",
+      "identifier" : "8B5C663329FBE7E0006C0A57",
+      "name" : "GiphyiOSApp"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Giphy.xcodeproj",
+        "identifier" : "8B5C664829FBE7E1006C0A57",
+        "name" : "GiphyiOSAppTests"
+      }
+    },
+    {
+      "enabled" : false,
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Giphy.xcodeproj",
+        "identifier" : "8B5C665229FBE7E2006C0A57",
+        "name" : "GiphyiOSAppUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
