@@ -16,6 +16,7 @@ public enum HTTPMethodType: String {
 
 public protocol Requestable {
     var path: String { get }
+    var isFullPath: Bool { get }
     var method: HTTPMethodType { get }
     var queryParameters: [String : Any] { get }
     
@@ -38,7 +39,7 @@ public enum RequestGenerationError: Error {
 
 extension Requestable {
     func url(with config: NetworkConfigurable) throws -> URL {
-        let baseURL = config.baseURL.appending(path: path).absoluteString
+        let baseURL = isFullPath ? path :  config.baseURL.appending(path: path).absoluteString
         
         guard var urlComponents = URLComponents(string: baseURL) else {
             throw RequestGenerationError.components
@@ -72,12 +73,14 @@ public class Endpoint<R>: ResponseRequestable {
     public typealias Response = R
     
     public let path: String
+    public let isFullPath: Bool
     public let method: HTTPMethodType
     public let queryParameters: [String : Any]
     public let responseDecoder: ResponseDecoder
     
-    public init(path: String, method: HTTPMethodType, queryParameters: [String : Any] = [:], responseDecoder: ResponseDecoder = JSONResponseDecoder()) {
+    public init(path: String, isFullPath: Bool = false, method: HTTPMethodType, queryParameters: [String : Any] = [:], responseDecoder: ResponseDecoder = JSONResponseDecoder()) {
         self.path = path
+        self.isFullPath = isFullPath
         self.method = method
         self.queryParameters = queryParameters
         self.responseDecoder = responseDecoder

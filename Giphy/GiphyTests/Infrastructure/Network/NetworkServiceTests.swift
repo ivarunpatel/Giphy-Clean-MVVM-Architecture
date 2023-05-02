@@ -143,6 +143,7 @@ final class NetworkServiceTests: XCTestCase {
     }
     
     private class MockEndPoint: Requestable {
+        var isFullPath: Bool = false
         var path: String
         var method: HTTPMethodType
         var queryParameters: [String : Any] = [:]
