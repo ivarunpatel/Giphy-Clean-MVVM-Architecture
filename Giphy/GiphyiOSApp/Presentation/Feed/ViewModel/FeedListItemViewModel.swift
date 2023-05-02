@@ -11,26 +11,36 @@ import Giphy
 public struct FeedListItemViewModel: Equatable {
     public let id: String
     public let title: String
-    public private(set) var datetime: String?
+    public private(set) var trendingDateTime: String?
     public let images: FeedImages
-    public let user: FeedUser?
+    public private(set) var aurthorName: String?
     
     public init(feed: Feed) {
         id = feed.id
         title = feed.title
         images = feed.images
-        user = feed.user
-        datetime = formatDateTime(datetime: feed.datetime)
+        aurthorName = setAurthorName(user: feed.user)
+        trendingDateTime = formatTrendingDateTime(datetime: feed.datetime)
     }
     
-    private func formatDateTime(datetime: String?) -> String {
+    private func formatTrendingDateTime(datetime: String?) -> String? {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         if let dateTimeString = datetime,
            let date = dateFromString(dateTime: dateTimeString) {
-            return formatter.localizedString(for: date, relativeTo: Date())
+            let formattedDateTime = formatter.localizedString(for: date, relativeTo: Date())
+            let displayDateTime = "Trending on: \(formattedDateTime)"
+            return displayDateTime
         } else {
-            return ""
+            return nil
+        }
+    }
+    
+    private func setAurthorName(user: FeedUser?) -> String? {
+        if let displayName = user?.displayName {
+            return "Aurthor: \(displayName)"
+        } else {
+            return nil
         }
     }
     
