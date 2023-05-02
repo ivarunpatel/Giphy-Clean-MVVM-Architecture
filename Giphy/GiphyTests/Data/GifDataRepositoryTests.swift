@@ -46,6 +46,23 @@ final class GifDataRepositoryTests: XCTestCase {
         }
     }
     
+    func test_fetchGif_doesNotReturnAfterRequestCancellation() {
+        let (sut, dataLoader) = makeSUT()
+
+        let expectation = expectation(description: "Waiting for completion")
+       let task = sut.fetchGif(url: anyGifURLString()) { _ in
+           expectation.fulfill()
+        }
+        
+        task?.cancel()
+        
+        dataLoader.complete(with: anyData())
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        XCTAssertEqual(dataLoader.cancelledRequestURLPaths.count, 1)
+    }
+    
     // MARK: - Helper
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: GifDataRepositoryLoader, dataLoader: DataTransferServiceLoaderSpy<Data>) {
@@ -82,11 +99,13 @@ final class GifDataRepositoryTests: XCTestCase {
     
     private class DataTransferServiceLoaderSpy<R: Decodable>: DataTransferService {
         private var receivedMessages = [CompletionHandler<R>]()
-        
+        var cancelledRequestURLPaths = [String]()
         @discardableResult
         func request<T: Decodable, E: ResponseRequestable>(with endpoint: E, completion: @escaping CompletionHandler<T>) -> NetworkCancellable? where E.Response == T {
             receivedMessages.append(completion as! ((Result<R, DataTransferError>) -> Void))
-            return nil
+            return NetworkCancellableSpy { [weak self] in
+                self?.cancelledRequestURLPaths.append(endpoint.path)
+            }
         }
         
         func complete(with model: Data, at index: Int = 0) {
@@ -98,4 +117,12 @@ final class GifDataRepositoryTests: XCTestCase {
         }
     }
 
+    private struct NetworkCancellableSpy: NetworkCancellable {
+        let cancelCallback: () -> Void
+        
+        func cancel() {
+            cancelCallback()
+        }
+        
+    }
 }
