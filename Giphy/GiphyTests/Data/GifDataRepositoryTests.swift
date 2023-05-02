@@ -38,6 +38,14 @@ final class GifDataRepositoryTests: XCTestCase {
         }
     }
     
+    func test_fetchGif_deliversErrorOnFailure() {
+        let (sut, dataLoader) = makeSUT()
+
+        expect(sut: sut, toCompleteWith: .failure(DataTransferError.parsing(anyNSError()))) {
+            dataLoader.complete(with: DataTransferError.parsing(anyNSError()))
+        }
+    }
+    
     // MARK: - Helper
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: GifDataRepositoryLoader, dataLoader: DataTransferServiceLoaderSpy<Data>) {
