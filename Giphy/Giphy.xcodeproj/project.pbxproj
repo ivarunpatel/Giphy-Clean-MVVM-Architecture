@@ -48,6 +48,8 @@
 		8B94716129ECFD650019E784 /* XCTestCase+MemoryTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716029ECFD650019E784 /* XCTestCase+MemoryTracking.swift */; };
 		8B94716329ECFF610019E784 /* NetworkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716229ECFF610019E784 /* NetworkServiceTests.swift */; };
 		8B94716529ED024E0019E784 /* SharedTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B94716429ED024E0019E784 /* SharedTestHelpers.swift */; };
+		8BA933602A02441A00B667DD /* GifDataRepositoryLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA9335F2A02441A00B667DD /* GifDataRepositoryLoader.swift */; };
+		8BA933622A02443500B667DD /* GifDataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA933612A02443500B667DD /* GifDataRepository.swift */; };
 		8BB0A69329E51895005777A8 /* Giphy.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BB0A68A29E51894005777A8 /* Giphy.framework */; };
 		8BC3480A29FF74590085B76A /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC3480929FF74590085B76A /* FeedViewModel.swift */; };
 		8BC3480C29FF74930085B76A /* FeedListItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC3480B29FF74930085B76A /* FeedListItemViewModel.swift */; };
@@ -148,6 +150,8 @@
 		8B94716429ED024E0019E784 /* SharedTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTestHelpers.swift; sourceTree = "<group>"; };
 		8BA668AC29FA3EFA0073CF20 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
 		8BA668AF29FA40620073CF20 /* ObservableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableTests.swift; sourceTree = "<group>"; };
+		8BA9335F2A02441A00B667DD /* GifDataRepositoryLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifDataRepositoryLoader.swift; sourceTree = "<group>"; };
+		8BA933612A02443500B667DD /* GifDataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifDataRepository.swift; sourceTree = "<group>"; };
 		8BB0A68A29E51894005777A8 /* Giphy.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Giphy.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BB0A69229E51895005777A8 /* GiphyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GiphyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BC3480929FF74590085B76A /* FeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModel.swift; sourceTree = "<group>"; };
@@ -234,6 +238,7 @@
 			isa = PBXGroup;
 			children = (
 				8B04722929EFE69B000571F4 /* TrendingRepository.swift */,
+				8BA933612A02443500B667DD /* GifDataRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -243,6 +248,7 @@
 			children = (
 				8B04723729EFF205000571F4 /* Utlis */,
 				8B04722C29EFE6E6000571F4 /* TrendingRepositoryLoader.swift */,
+				8BA9335F2A02441A00B667DD /* GifDataRepositoryLoader.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -813,12 +819,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B04723629EFF182000571F4 /* Cancellable.swift in Sources */,
+				8BA933602A02441A00B667DD /* GifDataRepositoryLoader.swift in Sources */,
 				8B61ED2629EEA03000969E04 /* DataTransferService.swift in Sources */,
 				8B8ACBD429FA7856009AC12E /* ConnectionError.swift in Sources */,
 				8B04722D29EFE6E6000571F4 /* TrendingRepositoryLoader.swift in Sources */,
 				8B04723329EFE7F2000571F4 /* Feed.swift in Sources */,
 				8B172B7E29E9217100924F44 /* Endpoint.swift in Sources */,
 				8B04722A29EFE69B000571F4 /* TrendingRepository.swift in Sources */,
+				8BA933622A02443500B667DD /* GifDataRepository.swift in Sources */,
 				8B04723929EFF215000571F4 /* RepositoryTask.swift in Sources */,
 				8B11FAFA29EE5A1B003F4BDA /* NetworkService.swift in Sources */,
 				8B04723E29F0031C000571F4 /* TrendingUseCase.swift in Sources */,

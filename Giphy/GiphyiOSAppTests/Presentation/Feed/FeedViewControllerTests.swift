@@ -25,10 +25,12 @@ final public class FeedItemCell: UITableViewCell {
 final class FeedViewController: UIViewController {
     
     private var viewModel: FeedViewModellable?
+    private var gifDataRepository: GifDataRepository?
     
-   convenience init(viewModel: FeedViewModellable) {
+   convenience init(viewModel: FeedViewModellable, gifDataRepository: GifDataRepository) {
        self.init()
        self.viewModel = viewModel
+       self.gifDataRepository = gifDataRepository
     }
     
     let tableView = UITableView()
@@ -90,6 +92,10 @@ extension FeedViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = FeedItemCell()
         cell.configure(with: feedListItemViewModel[indexPath.row])
+        let gifURL = feedListItemViewModel[indexPath.row].images.small.url
+        _ = gifDataRepository?.fetchGif(url: gifURL.absoluteString, completion: { result in
+            
+        })
         return cell
     }
 }
@@ -97,7 +103,7 @@ extension FeedViewController: UITableViewDataSource {
 final class FeedViewControllerTests: XCTestCase {
     
     func test_loadFeed_requestFeedData() {
-        let (sut, useCase) = makeSUT()
+        let (sut, useCase, _) = makeSUT()
         XCTAssertEqual(useCase.receivedMessages.count, 0, "Expected no feed loading request before view is loaded")
 
         sut.loadViewIfNeeded()
@@ -106,7 +112,7 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_loadingFeedIndicator_isVisibleWhileLoadingFeed() {
-        let (sut, useCase) = makeSUT()
+        let (sut, useCase, _) = makeSUT()
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator before view is loaded")
 
         sut.loadViewIfNeeded()
@@ -123,13 +129,13 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_loadFeedCompletion_rendersSuccessfullyLoadedFeed() {
-        let feedItem1 = makeItem(title: "Asap Rocky Fashion GIF by E!", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "https://media1.giphy.com/media/AqQkbP48FSFM2H8huE/giphy.gif?cid=a73e0a9ddnhiwx199bv5vhla2bxqtb0z6r2lx3dt6axf4ld8&ep=v1_gifs_trending&rid=giphy.gif&ct=g")!, smallImageURL: URL(string: "https://media1.giphy.com/media/AqQkbP48FSFM2H8huE/100w.gif?cid=a73e0a9ddnhiwx199bv5vhla2bxqtb0z6r2lx3dt6axf4ld8&ep=v1_gifs_trending&rid=100w.gif&ct=g")!)
-        let feedItem2 = makeItem(title: "Wake Up Morning GIF by Star Wars", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "https://media3.giphy.com/media/3ornjVsgtdAWYjQRzy/giphy.gif?cid=a73e0a9ddnhiwx199bv5vhla2bxqtb0z6r2lx3dt6axf4ld8&ep=v1_gifs_trending&rid=giphy.gif&ct=g")!, smallImageURL: URL(string: "https://media3.giphy.com/media/3ornjVsgtdAWYjQRzy/100w.gif?cid=a73e0a9ddnhiwx199bv5vhla2bxqtb0z6r2lx3dt6axf4ld8&ep=v1_gifs_trending&rid=100w.gif&ct=g")!)
-        let feedItem3 = makeItem(title: "Happy Teachers Day GIF by DINOSALLY", datetime: "2023-05-02 06:18:08", originalImageURL: URL(string: "https://media4.giphy.com/media/bgmUGSNjILYUasXHMk/giphy.gif?cid=a73e0a9ddnhiwx199bv5vhla2bxqtb0z6r2lx3dt6axf4ld8&ep=v1_gifs_trending&rid=giphy.gif&ct=g")!, smallImageURL: URL(string: "https://media4.giphy.com/media/bgmUGSNjILYUasXHMk/100w.gif?cid=a73e0a9ddnhiwx199bv5vhla2bxqtb0z6r2lx3dt6axf4ld8&ep=v1_gifs_trending&rid=100w.gif&ct=g")!)
+        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedItem3 = makeItem(title: "Title 3", datetime: "2023-05-02 06:18:08", originalImageURL: URL(string: "http://url-2-0.com")!, smallImageURL: URL(string: "http://url-2-1.com")!)
         
         var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1])
         
-        let (sut, useCase) = makeSUT()
+        let (sut, useCase, _) = makeSUT()
         
         sut.loadViewIfNeeded()
         assertThat(sut, isRendering: [])
@@ -145,15 +151,37 @@ final class FeedViewControllerTests: XCTestCase {
         assertThat(sut, isRendering: feedListItemViewModelAfterReload)
     }
     
+    func test_feedView_loadGifURLWhenVisible() {
+        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+
+        let (sut, useCase, gifDataRepository) = makeSUT()
+
+        sut.loadViewIfNeeded()
+        
+        useCase.complete(with: feedPage)
+        
+        XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no Gif URL requests until view become visible")
+
+        sut.simulateFeedViewVisible(at: 0)
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected first Gif URL requests after first view become visible")
+        
+        sut.simulateFeedViewVisible(at: 1)
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected second Gif URL requests after second view become visible")
+    }
+    
     // MARK: - Helpers
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (viewController: FeedViewController, useCase: TrendingUseCaseSpy) {
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (viewController: FeedViewController, useCase: TrendingUseCaseSpy, gifDataRepository: GifDataRepositorySpy) {
         let useCase = TrendingUseCaseSpy()
         let viewModel = FeedViewModel(useCase: useCase)
-        let viewController = FeedViewController(viewModel: viewModel)
+        let gifDataRepository = GifDataRepositorySpy()
+        let viewController = FeedViewController(viewModel: viewModel, gifDataRepository: gifDataRepository)
         trackForMemoryLeaks(useCase, file: file, line: line)
         trackForMemoryLeaks(viewModel, file: file, line: line)
+        trackForMemoryLeaks(gifDataRepository, file: file, line: line)
         trackForMemoryLeaks(viewController, file: file, line: line)
-        return (viewController, useCase)
+        return (viewController, useCase, gifDataRepository)
     }
     
     private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedListItemViewModel], file: StaticString = #file, line: UInt = #line) {
@@ -204,6 +232,15 @@ final class FeedViewControllerTests: XCTestCase {
             receivedMessages[index](.failure(feed))
         }
     }
+    
+    private class GifDataRepositorySpy: GifDataRepository {
+        var loadedGifURLs = [URL]()
+        
+        func fetchGif(url: String, completion: @escaping (GifDataRepository.Result) -> Void) -> Cancellable? {
+            loadedGifURLs.append(URL(string: url)!)
+            return nil
+        }
+    }
 }
 
 extension FeedViewController {
@@ -219,11 +256,15 @@ extension FeedViewController {
         tableView.numberOfRows(inSection: feedViewSection)
     }
     
+    @discardableResult
+    func simulateFeedViewVisible(at index: Int) -> FeedItemCell? {
+        feedView(at: index)
+    }
+    
     func feedView(at index: Int) -> FeedItemCell? {
         let dataSource = tableView.dataSource
         let indexPath = IndexPath(item: index, section: feedViewSection)
         return dataSource?.tableView(tableView, cellForRowAt: indexPath) as? FeedItemCell
-        
     }
     
     private var feedViewSection: Int {

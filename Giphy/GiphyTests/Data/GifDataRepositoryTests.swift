@@ -8,26 +8,6 @@
 import XCTest
 import Giphy
 
-final public class GifDataRepositoryLoader {
-    
-    private let dataTransferService: DataTransferService
-    
-    public init(dataTransferService: DataTransferService) {
-        self.dataTransferService = dataTransferService
-    }
-    
-    func fetchGif(url: String, completion: @escaping (Result<Data, Error>) -> Void) -> Cancellable? {
-        let endPoint = Endpoint<Data>(path: url, isFullPath: true, method: .get, responseDecoder: RawDataResponseDecoder())
-        
-        let task = RepositoryTask()
-        task.networkTask = dataTransferService.request(with: endPoint, completion: { result in
-            let mappedResult = result.mapError { $0 as Error }
-            completion(mappedResult)
-        })
-        return task
-    }
-}
-
 final class GifDataRepositoryTests: XCTestCase {
     
     func test_fetchGif_deliversDataOnSuccess() {
@@ -73,7 +53,7 @@ final class GifDataRepositoryTests: XCTestCase {
         return (sut, dataLoader)
     }
     
-    private func expect(sut: GifDataRepositoryLoader, toCompleteWith expectedResult: Result<Data, Error>, on action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+    private func expect(sut: GifDataRepository, toCompleteWith expectedResult: GifDataRepository.Result, on action: () -> Void, file: StaticString = #file, line: UInt = #line) {
         let expectation = expectation(description: "Waiting for completion")
         _ = sut.fetchGif(url: anyGifURLString()) { receivedResult in
             switch (receivedResult, expectedResult) {
