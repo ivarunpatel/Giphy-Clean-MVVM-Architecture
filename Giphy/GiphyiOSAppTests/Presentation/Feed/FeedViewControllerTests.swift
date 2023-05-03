@@ -15,10 +15,17 @@ final public class FeedItemCell: UITableViewCell {
     let titleLabel: UILabel = UILabel()
     let aurthorNameLabel: UILabel = UILabel()
     
-    func configure(with model: FeedListItemViewModel) {
+    var gifDataRepositoryCancallable: Cancellable?
+    
+    func configure(with model: FeedListItemViewModel, gifDataRepository: GifDataRepository?) -> Cancellable? {
         trendingTimeLabel.text = model.trendingDateTime
         titleLabel.text = model.title
         aurthorNameLabel.text = model.aurthorName
+        let gifURL = model.images.small.url
+        gifDataRepositoryCancallable = gifDataRepository?.fetchGif(url: gifURL.absoluteString, completion: { result in
+            
+        })
+        return gifDataRepositoryCancallable
     }
 }
 
@@ -35,12 +42,12 @@ final class FeedViewController: UIViewController {
     
     let tableView = UITableView()
     var refreshControl: UIRefreshControl?
-
     var feedListItemViewModel = [FeedListItemViewModel]() {
         didSet {
             tableView.reloadData()
         }
     }
+    var gifDataRepositoryCancallables = [IndexPath: Cancellable]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,6 +60,7 @@ final class FeedViewController: UIViewController {
     
     private func setupTableView() {
         tableView.dataSource = self
+        tableView.delegate = self
     }
     
     private func setupRefreshControl() {
@@ -84,19 +92,19 @@ final class FeedViewController: UIViewController {
     }
 }
 
-extension FeedViewController: UITableViewDataSource {
+extension FeedViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         feedListItemViewModel.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = FeedItemCell()
-        cell.configure(with: feedListItemViewModel[indexPath.row])
-        let gifURL = feedListItemViewModel[indexPath.row].images.small.url
-        _ = gifDataRepository?.fetchGif(url: gifURL.absoluteString, completion: { result in
-            
-        })
+        gifDataRepositoryCancallables[indexPath] = cell.configure(with: feedListItemViewModel[indexPath.row], gifDataRepository: gifDataRepository)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        gifDataRepositoryCancallables[indexPath]?.cancel()
     }
 }
 
@@ -154,7 +162,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_feedView_loadGifURLWhenVisible() {
         let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
-        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
 
         let (sut, useCase, gifDataRepository) = makeSUT()
 
@@ -165,10 +173,29 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no Gif URL requests until view become visible")
 
         sut.simulateFeedViewVisible(at: 0)
-        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected first Gif URL requests after first view become visible")
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected one Gif URL requests after first view become visible")
         
         sut.simulateFeedViewVisible(at: 1)
-        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected second Gif URL requests after second view become visible")
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two Gif URL requests after second view become visible")
+    }
+    
+    func test_feedView_cancelsGifLoadingWhenNotVisibleAnymore() {
+        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        useCase.complete(with: feedPage)
+        XCTAssertTrue(gifDataRepository.cancelledGifURLs.isEmpty, "Expected no cancelled gif url before view is not become invisible")
+        
+        sut.simulateFeedViewIsNotVisible(at: 0)
+        XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url], "Expected one cancelled gif url after first view is not visible anymore")
+        
+        sut.simulateFeedViewIsNotVisible(at: 1)
+        XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two cancelled gif url after second view is not visible anymore")
     }
     
     // MARK: - Helpers
@@ -235,10 +262,20 @@ final class FeedViewControllerTests: XCTestCase {
     
     private class GifDataRepositorySpy: GifDataRepository {
         var loadedGifURLs = [URL]()
+        var cancelledGifURLs = [URL]()
         
         func fetchGif(url: String, completion: @escaping (GifDataRepository.Result) -> Void) -> Cancellable? {
             loadedGifURLs.append(URL(string: url)!)
-            return nil
+            return CancellableSpy { [weak self] in
+                self?.cancelledGifURLs.append(URL(string: url)!)
+            }
+        }
+        
+        private struct CancellableSpy: Cancellable {
+            let cancelCallBlock: () -> Void
+            func cancel() {
+                cancelCallBlock()
+            }
         }
     }
 }
@@ -259,6 +296,16 @@ extension FeedViewController {
     @discardableResult
     func simulateFeedViewVisible(at index: Int) -> FeedItemCell? {
         feedView(at: index)
+    }
+    
+    @discardableResult
+    func simulateFeedViewIsNotVisible(at index: Int) -> FeedItemCell? {
+        let cell = feedView(at: index)
+        
+        let delegate = tableView.delegate
+        let indexPath = IndexPath(item: index, section: feedViewSection)
+        delegate?.tableView?(tableView, didEndDisplaying: cell!, forRowAt: indexPath)
+        return cell
     }
     
     func feedView(at index: Int) -> FeedItemCell? {
