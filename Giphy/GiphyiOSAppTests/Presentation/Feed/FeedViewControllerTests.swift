@@ -108,6 +108,13 @@ extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             feedListItemViewModel.didRequestGif()
         }
     }
+    
+    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            let feedListItemViewModel = feedListItemViewModel[indexPath.row]
+            feedListItemViewModel.didCancelImageRequest()
+        }
+    }
 }
 
 final class FeedViewControllerTests: XCTestCase {
@@ -214,10 +221,32 @@ final class FeedViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         
         useCase.complete(with: feedPage)
-        XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no gif URL requests untill image is near visible")
+        XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no gif URL requests untill feeditemcell is near visible")
         
         sut.simulateFeedCellNearVisible(at: 0)
-        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected first gif URL request once first feeditemcell is near visible")
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected one gif URL request once first feeditemcell is near visible")
+        
+        sut.simulateFeedCellNearVisible(at: 1)
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two gif URL request once second feeditemcell is near visible")
+    }
+    
+    func test_feedItemCell_cancelPreloadingGifURLWhenNotNearVisible() {
+        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        useCase.complete(with: feedPage)
+        XCTAssertTrue(gifDataRepository.cancelledGifURLs.isEmpty, "Expected no gif cancelled URL requests untill feeditemcell is not near visible")
+        
+        sut.simulateFeedCellNotNearVisible(at: 0)
+        XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url], "Expected one gif URL request once first feeditemcell is not near visible")
+        
+        sut.simulateFeedCellNotNearVisible(at: 1)
+        XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two gif URL request once second feeditemcell is not near visible")
     }
     
     // MARK: - Helpers
@@ -321,24 +350,32 @@ extension FeedViewController {
     }
     
     @discardableResult
-    func simulateFeedCellNotVisible(at index: Int) -> FeedItemCell? {
-        let cell = feedCell(at: index)
+    func simulateFeedCellNotVisible(at row: Int) -> FeedItemCell? {
+        let cell = feedCell(at: row)
         
         let delegate = tableView.delegate
-        let indexPath = IndexPath(item: index, section: feedViewSection)
+        let indexPath = IndexPath(item: row, section: feedViewSection)
         delegate?.tableView?(tableView, didEndDisplaying: cell!, forRowAt: indexPath)
         return cell
     }
     
-    func simulateFeedCellNearVisible(at index: Int) {
+    func simulateFeedCellNearVisible(at row: Int) {
         let prefetchDataSource = tableView.prefetchDataSource
-        let indexPath = IndexPath(row: index, section: feedViewSection)
+        let indexPath = IndexPath(row: row, section: feedViewSection)
         prefetchDataSource?.tableView(tableView, prefetchRowsAt: [indexPath])
     }
     
-    func feedCell(at index: Int) -> FeedItemCell? {
+    func simulateFeedCellNotNearVisible(at row: Int) {
+        simulateFeedCellNearVisible(at: row)
+        
+        let prefetchDataSource = tableView.prefetchDataSource
+        let indexPath = IndexPath(row: row, section: feedViewSection)
+        prefetchDataSource?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
+    }
+    
+    func feedCell(at row: Int) -> FeedItemCell? {
         let dataSource = tableView.dataSource
-        let indexPath = IndexPath(item: index, section: feedViewSection)
+        let indexPath = IndexPath(item: row, section: feedViewSection)
         return dataSource?.tableView(tableView, cellForRowAt: indexPath) as? FeedItemCell
     }
     
