@@ -15,29 +15,21 @@ final public class FeedItemCell: UITableViewCell {
     let titleLabel: UILabel = UILabel()
     let aurthorNameLabel: UILabel = UILabel()
     
-    var gifDataRepositoryCancallable: Cancellable?
-    
-    func configure(with model: FeedListItemViewModel, gifDataRepository: GifDataRepository?) -> Cancellable? {
+    func configure(with model: FeedListItemViewModel) {
         trendingTimeLabel.text = model.trendingDateTime
         titleLabel.text = model.title
         aurthorNameLabel.text = model.aurthorName
-        let gifURL = model.images.small.url
-        gifDataRepositoryCancallable = gifDataRepository?.fetchGif(url: gifURL.absoluteString, completion: { result in
-            
-        })
-        return gifDataRepositoryCancallable
+        model.didRequestGif()
     }
 }
 
 final class FeedViewController: UIViewController {
     
     private var viewModel: FeedViewModellable?
-    private var gifDataRepository: GifDataRepository?
     
-   convenience init(viewModel: FeedViewModellable, gifDataRepository: GifDataRepository) {
+   convenience init(viewModel: FeedViewModellable) {
        self.init()
        self.viewModel = viewModel
-       self.gifDataRepository = gifDataRepository
     }
     
     let tableView = UITableView()
@@ -61,6 +53,7 @@ final class FeedViewController: UIViewController {
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.prefetchDataSource = self
     }
     
     private func setupRefreshControl() {
@@ -92,19 +85,28 @@ final class FeedViewController: UIViewController {
     }
 }
 
-extension FeedViewController: UITableViewDataSource, UITableViewDelegate {
+extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         feedListItemViewModel.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = FeedItemCell()
-        gifDataRepositoryCancallables[indexPath] = cell.configure(with: feedListItemViewModel[indexPath.row], gifDataRepository: gifDataRepository)
+        let feedListItemViewModel = feedListItemViewModel[indexPath.row]
+        cell.configure(with: feedListItemViewModel)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        gifDataRepositoryCancallables[indexPath]?.cancel()
+        let feedListItemViewModel = feedListItemViewModel[indexPath.row]
+        feedListItemViewModel.didCancelImageRequest()
+    }
+    
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        indexPaths.forEach { indexPath in
+            let feedListItemViewModel = feedListItemViewModel[indexPath.row]
+            feedListItemViewModel.didRequestGif()
+        }
     }
 }
 
@@ -143,23 +145,27 @@ final class FeedViewControllerTests: XCTestCase {
         
         var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1])
         
-        let (sut, useCase, _) = makeSUT()
+        let (sut, useCase, gifDataRepository) = makeSUT()
         
         sut.loadViewIfNeeded()
         assertThat(sut, isRendering: [])
         
         useCase.complete(with: feedPage, at: 0)
-        let feedListItemViewModelOnViewDidLoad = [feedItem1].map(FeedListItemViewModel.init)
+        let feedListItemViewModelOnViewDidLoad = [feedItem1].map { feed in
+            FeedListItemViewModel(feed: feed, gifDataRepository: gifDataRepository)
+        }
         assertThat(sut, isRendering: feedListItemViewModelOnViewDidLoad)
         
         sut.simulateUserInitiatedReload()
         feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2, feedItem3])
         useCase.complete(with: feedPage, at: 1)
-        let feedListItemViewModelAfterReload = [feedItem1, feedItem2, feedItem3].map(FeedListItemViewModel.init)
+        let feedListItemViewModelAfterReload = [feedItem1, feedItem2, feedItem3].map { feed in
+            FeedListItemViewModel(feed: feed, gifDataRepository: gifDataRepository)
+        }
         assertThat(sut, isRendering: feedListItemViewModelAfterReload)
     }
     
-    func test_feedView_loadGifURLWhenVisible() {
+    func test_feedItemCell_loadGifURLWhenVisible() {
         let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
@@ -172,14 +178,14 @@ final class FeedViewControllerTests: XCTestCase {
         
         XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no Gif URL requests until view become visible")
 
-        sut.simulateFeedViewVisible(at: 0)
+        sut.simulateFeedCellVisible(at: 0)
         XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected one Gif URL requests after first view become visible")
         
-        sut.simulateFeedViewVisible(at: 1)
+        sut.simulateFeedCellVisible(at: 1)
         XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two Gif URL requests after second view become visible")
     }
     
-    func test_feedView_cancelsGifLoadingWhenNotVisibleAnymore() {
+    func test_feedItemCell_cancelsGifLoadingWhenNotVisibleAnymore() {
         let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
@@ -191,19 +197,35 @@ final class FeedViewControllerTests: XCTestCase {
         useCase.complete(with: feedPage)
         XCTAssertTrue(gifDataRepository.cancelledGifURLs.isEmpty, "Expected no cancelled gif url before view is not become invisible")
         
-        sut.simulateFeedViewIsNotVisible(at: 0)
+        sut.simulateFeedCellNotVisible(at: 0)
         XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url], "Expected one cancelled gif url after first view is not visible anymore")
         
-        sut.simulateFeedViewIsNotVisible(at: 1)
+        sut.simulateFeedCellNotVisible(at: 1)
         XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two cancelled gif url after second view is not visible anymore")
+    }
+    
+    func test_feedItemCell_preloadsGifURLWhenNearVisible() {
+        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        useCase.complete(with: feedPage)
+        XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no gif URL requests untill image is near visible")
+        
+        sut.simulateFeedCellNearVisible(at: 0)
+        XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected first gif URL request once first feeditemcell is near visible")
     }
     
     // MARK: - Helpers
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (viewController: FeedViewController, useCase: TrendingUseCaseSpy, gifDataRepository: GifDataRepositorySpy) {
         let useCase = TrendingUseCaseSpy()
-        let viewModel = FeedViewModel(useCase: useCase)
         let gifDataRepository = GifDataRepositorySpy()
-        let viewController = FeedViewController(viewModel: viewModel, gifDataRepository: gifDataRepository)
+        let viewModel = FeedViewModel(useCase: useCase, gifDataRepository: gifDataRepository)
+        let viewController = FeedViewController(viewModel: viewModel)
         trackForMemoryLeaks(useCase, file: file, line: line)
         trackForMemoryLeaks(viewModel, file: file, line: line)
         trackForMemoryLeaks(gifDataRepository, file: file, line: line)
@@ -222,7 +244,7 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     private func assertThat(_ sut: FeedViewController, feed: FeedListItemViewModel, at index: Int, file: StaticString = #file, line: UInt = #line) {
-        let view = sut.feedView(at: index)
+        let view = sut.feedCell(at: index)
         
         XCTAssertEqual(view?.titleLabel.text, feed.title, "Expected title to be \(feed.title) for feed view at \(index)", file: file, line: line)
         
@@ -294,13 +316,13 @@ extension FeedViewController {
     }
     
     @discardableResult
-    func simulateFeedViewVisible(at index: Int) -> FeedItemCell? {
-        feedView(at: index)
+    func simulateFeedCellVisible(at index: Int) -> FeedItemCell? {
+        feedCell(at: index)
     }
     
     @discardableResult
-    func simulateFeedViewIsNotVisible(at index: Int) -> FeedItemCell? {
-        let cell = feedView(at: index)
+    func simulateFeedCellNotVisible(at index: Int) -> FeedItemCell? {
+        let cell = feedCell(at: index)
         
         let delegate = tableView.delegate
         let indexPath = IndexPath(item: index, section: feedViewSection)
@@ -308,7 +330,13 @@ extension FeedViewController {
         return cell
     }
     
-    func feedView(at index: Int) -> FeedItemCell? {
+    func simulateFeedCellNearVisible(at index: Int) {
+        let prefetchDataSource = tableView.prefetchDataSource
+        let indexPath = IndexPath(row: index, section: feedViewSection)
+        prefetchDataSource?.tableView(tableView, prefetchRowsAt: [indexPath])
+    }
+    
+    func feedCell(at index: Int) -> FeedItemCell? {
         let dataSource = tableView.dataSource
         let indexPath = IndexPath(item: index, section: feedViewSection)
         return dataSource?.tableView(tableView, cellForRowAt: indexPath) as? FeedItemCell

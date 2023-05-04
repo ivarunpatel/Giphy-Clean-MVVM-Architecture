@@ -30,9 +30,11 @@ public typealias FeedViewModellable = FeedViewModelInput & FeedViewModelOutput
 final public class FeedViewModel: FeedViewModellable {
     
     private let useCase: TrendingUseCase
+    private let gifDataRepository: GifDataRepository
     
-    public init(useCase: TrendingUseCase) {
+    public init(useCase: TrendingUseCase, gifDataRepository: GifDataRepository) {
         self.useCase = useCase
+        self.gifDataRepository = gifDataRepository
     }
     
     public var items: Observable<[FeedListItemViewModel]> = Observable([])
@@ -69,7 +71,9 @@ final public class FeedViewModel: FeedViewModellable {
         offSet = feedPage.offset
         
         pages = pages.filter { $0.offset != feedPage.offset } + [feedPage]
-        items.value = pages.flatMap { $0.giphy }.map(FeedListItemViewModel.init)
+        items.value = pages.flatMap { $0.giphy }.map { feed in
+            FeedListItemViewModel(feed: feed, gifDataRepository: gifDataRepository)
+        }
     }
     
     private func resetPages() {

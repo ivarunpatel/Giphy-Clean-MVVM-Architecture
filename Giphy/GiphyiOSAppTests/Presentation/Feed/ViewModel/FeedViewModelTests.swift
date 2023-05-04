@@ -114,7 +114,8 @@ final class FeedViewModelTests: XCTestCase {
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedViewModel, useCase: TrendingUseCaseSpy) {
         let useCase = TrendingUseCaseSpy()
-        let sut = FeedViewModel(useCase: useCase)
+        let gifDataRepository = GifDataRepositoryDummy()
+        let sut = FeedViewModel(useCase: useCase, gifDataRepository: gifDataRepository)
         trackForMemoryLeaks(sut, file: file, line: line)
         trackForMemoryLeaks(useCase, file: file, line: line)
         return (sut, useCase)
@@ -126,7 +127,7 @@ final class FeedViewModelTests: XCTestCase {
     
     private func makeItem() -> (Feed, FeedListItemViewModel) {
         let feed = Feed(id: anyRandomId(), title: "title", datetime: "2021-05-21 19:17:34", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))
-        let feedListItemViewModel = FeedListItemViewModel(feed: feed)
+        let feedListItemViewModel = FeedListItemViewModel(feed: feed, gifDataRepository: GifDataRepositoryDummy())
         return (feed, feedListItemViewModel)
     }
     
@@ -151,6 +152,12 @@ final class FeedViewModelTests: XCTestCase {
         
         func complete(with feed: Error, at index: Int = 0) {
             receivedMessages[index](.failure(feed))
+        }
+    }
+    
+    private class GifDataRepositoryDummy: GifDataRepository {
+        func fetchGif(url: String, completion: @escaping (GifDataRepository.Result) -> Void) -> Cancellable? {
+            return nil
         }
     }
     
