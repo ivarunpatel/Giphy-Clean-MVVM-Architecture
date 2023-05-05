@@ -146,9 +146,9 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_loadFeedCompletion_rendersSuccessfullyLoadedFeed() {
-        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
-        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
-        let feedItem3 = makeItem(title: "Title 3", datetime: "2023-05-02 06:18:08", originalImageURL: URL(string: "http://url-2-0.com")!, smallImageURL: URL(string: "http://url-2-1.com")!)
+        let feedItem1 = makeItem()
+        let feedItem2 = makeItem()
+        let feedItem3 = makeItem()
         
         var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1])
         
@@ -172,9 +172,33 @@ final class FeedViewControllerTests: XCTestCase {
         assertThat(sut, isRendering: feedListItemViewModelAfterReload)
     }
     
+    func test_feedItemCell_rendersSuccessfullyLoadedFeedsAfterNonEmptyFeed() {
+        let feedItem1 = makeItem()
+        let feedItem2 = makeItem()
+        
+        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        sut.loadViewIfNeeded()
+        assertThat(sut, isRendering: [])
+        
+        useCase.complete(with: feedPage, at: 0)
+        
+        let feedListItemViewModelOnViewDidLoad = [feedItem1, feedItem2].map { feed in
+            FeedListItemViewModel(feed: feed, gifDataRepository: gifDataRepository)
+        }
+        assertThat(sut, isRendering: feedListItemViewModelOnViewDidLoad)
+        
+        sut.simulateUserInitiatedReload()
+        feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [])
+        useCase.complete(with: feedPage, at: 1)
+        
+        assertThat(sut, isRendering: [])
+    }
+    
     func test_feedItemCell_loadGifURLWhenVisible() {
-        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
-        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
 
         let (sut, useCase, gifDataRepository) = makeSUT()
@@ -193,8 +217,8 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_feedItemCell_cancelsGifLoadingWhenNotVisibleAnymore() {
-        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
-        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
@@ -212,8 +236,8 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_feedItemCell_preloadsGifURLWhenNearVisible() {
-        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
-        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
@@ -231,8 +255,8 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     func test_feedItemCell_cancelPreloadingGifURLWhenNotNearVisible() {
-        let feedItem1 = makeItem(title: "Title 1", datetime: "2023-05-02 11:52:03", originalImageURL: URL(string: "http://url-0-0.com")!, smallImageURL: URL(string: "http://url-0-1.com")!)
-        let feedItem2 = makeItem(title: "Title 2", datetime: "2019-02-07 10:30:02", originalImageURL: URL(string: "http://url-1-0.com")!, smallImageURL: URL(string: "http://url-1-1.com")!)
+        let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
+        let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
@@ -263,6 +287,9 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     private func assertThat(_ sut: FeedViewController, isRendering feed: [FeedListItemViewModel], file: StaticString = #file, line: UInt = #line) {
+        sut.tableView.layoutIfNeeded()
+        RunLoop.main.run(until: Date())
+        
         guard sut.numberOfRenderedFeedViews() == feed.count else {
             return XCTFail("Expected \(feed.count) feed view, got \(sut.numberOfRenderedFeedViews()) instead", file: file, line: line)
         }
