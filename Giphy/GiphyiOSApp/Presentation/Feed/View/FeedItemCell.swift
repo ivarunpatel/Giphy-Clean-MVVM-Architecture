@@ -9,10 +9,18 @@ import Foundation
 import UIKit
 
 final public class FeedItemCell: UITableViewCell {
-    @IBOutlet public private(set) var feedImageView: UIImageView!
-    @IBOutlet public private(set) var trendingTimeLabel: UILabel!
-    @IBOutlet public private(set) var titleLabel: UILabel!
-    @IBOutlet public private(set) var aurthorNameLabel: UILabel!
+    @IBOutlet private(set) public var feedImageView: UIImageView!
+    @IBOutlet private(set) public var trendingTimeLabel: UILabel!
+    @IBOutlet private(set) public var titleLabel: UILabel!
+    @IBOutlet private(set) public var aurthorNameLabel: UILabel!
+    
+    public override func awakeFromNib() {
+        setupUI()
+    }
+    
+    private func setupUI() {
+        feedImageView.layer.cornerRadius = 10
+    }
     
     func configure(with model: FeedListItemViewModel) {
         trendingTimeLabel.text = model.trendingDateTime

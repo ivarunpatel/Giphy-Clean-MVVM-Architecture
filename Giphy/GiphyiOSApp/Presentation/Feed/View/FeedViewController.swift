@@ -11,14 +11,20 @@ import UIKit
 public final class FeedViewController: UITableViewController {
     private var viewModel: FeedViewModellable?
     
-    convenience public init(viewModel: FeedViewModellable) {
-        self.init()
+    public required init?(coder: NSCoder, viewModel: FeedViewModellable) {
+        super.init(coder: coder)
         self.viewModel = viewModel
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     public var feedListItemViewModel = [FeedListItemViewModel]() {
         didSet {
-            tableView.reloadData()
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
         }
     }
     
@@ -38,9 +44,13 @@ public final class FeedViewController: UITableViewController {
             guard let self = self else { return }
             switch state {
             case .none:
-                refreshControl?.endRefreshing()
+                DispatchQueue.main.async {
+                    self.refreshControl?.endRefreshing()
+                }
             case .loading:
-                refreshControl?.beginRefreshing()
+                DispatchQueue.main.async {
+                    self.refreshControl?.beginRefreshing()
+                }
             case .nextPage:
                 break
             }
@@ -59,7 +69,7 @@ extension FeedViewController: UITableViewDataSourcePrefetching {
     }
     
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = FeedItemCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FeedItemCell") as! FeedItemCell
         let feedListItemViewModel = feedListItemViewModel[indexPath.row]
         cell.configure(with: feedListItemViewModel)
         return cell

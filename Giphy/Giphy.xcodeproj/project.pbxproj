@@ -57,6 +57,7 @@
 		8BC38B742A0515C100CD8F9B /* FeedItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC38B732A0515C100CD8F9B /* FeedItemCell.swift */; };
 		8BC38B792A051BC600CD8F9B /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC38B772A051BC600CD8F9B /* Roboto-Medium.ttf */; };
 		8BC38B7A2A051BC600CD8F9B /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8BC38B782A051BC600CD8F9B /* Roboto-Regular.ttf */; };
+		8BC38B7D2A05216600CD8F9B /* FeedUIComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BC38B7C2A05216600CD8F9B /* FeedUIComposer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -164,6 +165,7 @@
 		8BC38B732A0515C100CD8F9B /* FeedItemCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedItemCell.swift; sourceTree = "<group>"; };
 		8BC38B772A051BC600CD8F9B /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		8BC38B782A051BC600CD8F9B /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
+		8BC38B7C2A05216600CD8F9B /* FeedUIComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedUIComposer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -358,12 +360,12 @@
 		8B5C663529FBE7E0006C0A57 /* GiphyiOSApp */ = {
 			isa = PBXGroup;
 			children = (
+				8BC38B7B2A05214200CD8F9B /* Composer */,
 				8BC38B752A051BAC00CD8F9B /* Resources */,
 				8B5C666629FBE88F006C0A57 /* Application */,
 				8BC3480629FF74110085B76A /* Presentation */,
 				8B5C663A29FBE7E0006C0A57 /* ViewController.swift */,
 				8B5C663C29FBE7E0006C0A57 /* Main.storyboard */,
-				8B5C663F29FBE7E1006C0A57 /* Assets.xcassets */,
 				8B5C664129FBE7E1006C0A57 /* LaunchScreen.storyboard */,
 				8B5C664429FBE7E1006C0A57 /* Info.plist */,
 			);
@@ -563,6 +565,7 @@
 		8BC38B752A051BAC00CD8F9B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8B5C663F29FBE7E1006C0A57 /* Assets.xcassets */,
 				8BC38B762A051BB300CD8F9B /* Fonts */,
 			);
 			path = Resources;
@@ -575,6 +578,14 @@
 				8BC38B782A051BC600CD8F9B /* Roboto-Regular.ttf */,
 			);
 			path = Fonts;
+			sourceTree = "<group>";
+		};
+		8BC38B7B2A05214200CD8F9B /* Composer */ = {
+			isa = PBXGroup;
+			children = (
+				8BC38B7C2A05216600CD8F9B /* FeedUIComposer.swift */,
+			);
+			path = Composer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -828,6 +839,7 @@
 				8B5C663729FBE7E0006C0A57 /* AppDelegate.swift in Sources */,
 				8B9047BE29FF764500158872 /* Observable.swift in Sources */,
 				8B5C666829FBE8A3006C0A57 /* AppConfiguration.swift in Sources */,
+				8BC38B7D2A05216600CD8F9B /* FeedUIComposer.swift in Sources */,
 				8B5C663929FBE7E0006C0A57 /* SceneDelegate.swift in Sources */,
 				8BC3480C29FF74930085B76A /* FeedListItemViewModel.swift in Sources */,
 			);

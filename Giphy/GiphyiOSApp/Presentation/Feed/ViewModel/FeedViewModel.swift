@@ -82,7 +82,6 @@ final public class FeedViewModel: FeedViewModellable {
         offSet = 0
         
         pages.removeAll()
-        items.value.removeAll()
     }
     
     private func handleError(error: Error) {
