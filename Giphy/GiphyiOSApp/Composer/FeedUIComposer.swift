@@ -21,11 +21,7 @@ public final class FeedUIComposer {
         let useCase = TrendingUseCaseLoader(trendingGiphyRepository: trendingRepository)
         let gifDataRepository = GifDataRepositoryLoader(dataTransferService: dataTransferService)
         let feedViewModel = FeedViewModel(useCase: useCase, gifDataRepository: gifDataRepository)
-        let bundle = Bundle(for: FeedViewController.self)
-        let storyboard = UIStoryboard(name: "Main", bundle: bundle)
-        let feedViewController = storyboard.instantiateInitialViewController { coder -> FeedViewController? in
-            FeedViewController(coder: coder, viewModel: feedViewModel)
-        }
-        return feedViewController!
+        let feedViewController = FeedViewController(viewModel: feedViewModel)
+        return feedViewController
     }
 }

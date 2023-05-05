@@ -8,22 +8,25 @@
 import Foundation
 import UIKit
 
-public final class FeedViewController: UITableViewController {
+public final class FeedViewController: UIViewController {
+    @IBOutlet private(set) public var tableView: UITableView!
+    
     private var viewModel: FeedViewModellable?
     
-    public required init?(coder: NSCoder, viewModel: FeedViewModellable) {
-        super.init(coder: coder)
+    public init(viewModel: FeedViewModellable) {
         self.viewModel = viewModel
+        super.init(nibName: "FeedViewController", bundle: Bundle(for: FeedViewController.self))
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
+        fatalError("init(coder:) has not been implemented")
     }
     
+    public var refreshControl: UIRefreshControl?
     public var feedListItemViewModel = [FeedListItemViewModel]() {
         didSet {
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
+            guaranteeMainThread { [weak self] in
+                self?.tableView.reloadData()
             }
         }
     }
@@ -31,11 +34,23 @@ public final class FeedViewController: UITableViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupRefreshControl()
+        setupTableView()
         bindViewModel()
         viewModel?.viewDidLoad()
     }
+    
+    private func setupRefreshControl() {
+        refreshControl = UIRefreshControl()
+        refreshControl?.addTarget(self, action: #selector(didPerformPullToRefresh), for: .valueChanged)
+    }
  
-    @IBAction private func didPerformPullToRefresh() {
+    private func setupTableView() {
+        tableView.register(UINib(nibName: "FeedItemCell", bundle: Bundle(for: FeedItemCell.self)), forCellReuseIdentifier: "FeedItemCell")
+        tableView.addSubview(refreshControl!)
+    }
+    
+    @objc private func didPerformPullToRefresh() {
         viewModel?.didRefreshFeed()
     }
     
@@ -44,12 +59,12 @@ public final class FeedViewController: UITableViewController {
             guard let self = self else { return }
             switch state {
             case .none:
-                DispatchQueue.main.async {
-                    self.refreshControl?.endRefreshing()
+                guaranteeMainThread { [weak self] in
+                    self?.refreshControl?.endRefreshing()
                 }
             case .loading:
-                DispatchQueue.main.async {
-                    self.refreshControl?.beginRefreshing()
+                guaranteeMainThread { [weak self] in
+                    self?.refreshControl?.beginRefreshing()
                 }
             case .nextPage:
                 break
@@ -63,19 +78,19 @@ public final class FeedViewController: UITableViewController {
     }
 }
 
-extension FeedViewController: UITableViewDataSourcePrefetching {
-    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         feedListItemViewModel.count
     }
     
-    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FeedItemCell") as! FeedItemCell
         let feedListItemViewModel = feedListItemViewModel[indexPath.row]
         cell.configure(with: feedListItemViewModel)
         return cell
     }
     
-    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let feedListItemViewModel = feedListItemViewModel[indexPath.row]
         feedListItemViewModel.didCancelImageRequest()
     }
@@ -91,6 +106,16 @@ extension FeedViewController: UITableViewDataSourcePrefetching {
         indexPaths.forEach { indexPath in
             let feedListItemViewModel = feedListItemViewModel[indexPath.row]
             feedListItemViewModel.didCancelImageRequest()
+        }
+    }
+}
+    
+func guaranteeMainThread(work: @escaping () -> Void) {
+    if Thread.isMainThread {
+        work()
+    } else {
+        DispatchQueue.main.async {
+            work()
         }
     }
 }
