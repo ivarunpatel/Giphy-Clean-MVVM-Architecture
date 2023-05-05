@@ -9,120 +9,12 @@ import XCTest
 import GiphyiOSApp
 import Giphy
 
-final public class FeedItemCell: UITableViewCell {
-    let feedImageView: UIImageView = UIImageView()
-    let trendingTimeLabel: UILabel = UILabel()
-    let titleLabel: UILabel = UILabel()
-    let aurthorNameLabel: UILabel = UILabel()
-    
-    func configure(with model: FeedListItemViewModel) {
-        trendingTimeLabel.text = model.trendingDateTime
-        titleLabel.text = model.title
-        aurthorNameLabel.text = model.aurthorName
-        model.didRequestGif()
-    }
-}
-
-final class FeedViewController: UIViewController {
-    
-    private var viewModel: FeedViewModellable?
-    
-   convenience init(viewModel: FeedViewModellable) {
-       self.init()
-       self.viewModel = viewModel
-    }
-    
-    let tableView = UITableView()
-    var refreshControl: UIRefreshControl?
-    var feedListItemViewModel = [FeedListItemViewModel]() {
-        didSet {
-            tableView.reloadData()
-        }
-    }
-    var gifDataRepositoryCancallables = [IndexPath: Cancellable]()
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        setupTableView()
-        setupRefreshControl()
-        bindViewModel()
-        viewModel?.viewDidLoad()
-    }
-    
-    private func setupTableView() {
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.prefetchDataSource = self
-    }
-    
-    private func setupRefreshControl() {
-        refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(didPerformPullToRefresh), for: .valueChanged)
-    }
-    
-    @objc private func didPerformPullToRefresh() {
-        viewModel?.didRefreshFeed()
-    }
-    
-    private func bindViewModel() {
-        viewModel?.state.subscribe(listner: { [weak self] state in
-            guard let self = self else { return }
-            switch state {
-            case .none:
-                refreshControl?.endRefreshing()
-            case .loading:
-                refreshControl?.beginRefreshing()
-            case .nextPage:
-                break
-            }
-        })
-        
-        viewModel?.items.subscribe(listner: { [weak self] feedItems in
-            guard let self = self else { return }
-            feedListItemViewModel = feedItems
-        })
-    }
-}
-
-extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        feedListItemViewModel.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = FeedItemCell()
-        let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-        cell.configure(with: feedListItemViewModel)
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-        feedListItemViewModel.didCancelImageRequest()
-    }
-    
-    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach { indexPath in
-            let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-            feedListItemViewModel.didRequestGif()
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach { indexPath in
-            let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-            feedListItemViewModel.didCancelImageRequest()
-        }
-    }
-}
-
 final class FeedViewControllerTests: XCTestCase {
     
     func test_loadFeed_requestFeedData() {
         let (sut, useCase, _) = makeSUT()
         XCTAssertEqual(useCase.receivedMessages.count, 0, "Expected no feed loading request before view is loaded")
-
+        
         sut.loadViewIfNeeded()
         
         XCTAssertEqual(useCase.receivedMessages.count, 1, "Expected a feed loading request after view is loaded")
@@ -131,7 +23,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_loadingFeedIndicator_isVisibleWhileLoadingFeed() {
         let (sut, useCase, _) = makeSUT()
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator before view is loaded")
-
+        
         sut.loadViewIfNeeded()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator after view is loaded")
         
@@ -200,15 +92,15 @@ final class FeedViewControllerTests: XCTestCase {
         let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
         let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
-
+        
         let (sut, useCase, gifDataRepository) = makeSUT()
-
+        
         sut.loadViewIfNeeded()
         
         useCase.complete(with: feedPage)
         
         XCTAssertTrue(gifDataRepository.loadedGifURLs.isEmpty, "Expected no Gif URL requests until view become visible")
-
+        
         sut.simulateFeedCellVisible(at: 0)
         XCTAssertEqual(gifDataRepository.loadedGifURLs, [feedItem1.images.small.url], "Expected one Gif URL requests after first view become visible")
         
@@ -320,7 +212,7 @@ final class FeedViewControllerTests: XCTestCase {
     private func anyFeedPage() -> FeedPage {
         makeFeedPage(totalCount: 5, count: 2, offset: 0, feed: [makeItem()])
     }
-
+    
     private final class TrendingUseCaseSpy: TrendingUseCase {
         public private(set) var receivedMessages = [(Result<FeedPage, Error>) -> Void]()
         
