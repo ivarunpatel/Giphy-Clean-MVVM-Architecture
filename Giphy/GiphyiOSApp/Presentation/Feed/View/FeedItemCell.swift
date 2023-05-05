@@ -9,10 +9,10 @@ import Foundation
 import UIKit
 
 final public class FeedItemCell: UITableViewCell {
-    public let feedImageView: UIImageView = UIImageView()
-    public let trendingTimeLabel: UILabel = UILabel()
-    public let titleLabel: UILabel = UILabel()
-    public let aurthorNameLabel: UILabel = UILabel()
+    @IBOutlet public private(set) var feedImageView: UIImageView!
+    @IBOutlet public private(set) var trendingTimeLabel: UILabel!
+    @IBOutlet public private(set) var titleLabel: UILabel!
+    @IBOutlet public private(set) var aurthorNameLabel: UILabel!
     
     func configure(with model: FeedListItemViewModel) {
         trendingTimeLabel.text = model.trendingDateTime

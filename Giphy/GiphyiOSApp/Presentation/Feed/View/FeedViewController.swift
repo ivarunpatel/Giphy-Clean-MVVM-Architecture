@@ -8,8 +8,7 @@
 import Foundation
 import UIKit
 
-public final class FeedViewController: UIViewController {
-    
+public final class FeedViewController: UITableViewController {
     private var viewModel: FeedViewModellable?
     
     convenience public init(viewModel: FeedViewModellable) {
@@ -17,8 +16,6 @@ public final class FeedViewController: UIViewController {
         self.viewModel = viewModel
     }
     
-    public let tableView = UITableView()
-    public var refreshControl: UIRefreshControl?
     public var feedListItemViewModel = [FeedListItemViewModel]() {
         didSet {
             tableView.reloadData()
@@ -28,24 +25,11 @@ public final class FeedViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupTableView()
-        setupRefreshControl()
         bindViewModel()
         viewModel?.viewDidLoad()
     }
-    
-    private func setupTableView() {
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.prefetchDataSource = self
-    }
-    
-    private func setupRefreshControl() {
-        refreshControl = UIRefreshControl()
-        refreshControl?.addTarget(self, action: #selector(didPerformPullToRefresh), for: .valueChanged)
-    }
-    
-    @objc private func didPerformPullToRefresh() {
+ 
+    @IBAction private func didPerformPullToRefresh() {
         viewModel?.didRefreshFeed()
     }
     
@@ -69,19 +53,19 @@ public final class FeedViewController: UIViewController {
     }
 }
 
-extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+extension FeedViewController: UITableViewDataSourcePrefetching {
+    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         feedListItemViewModel.count
     }
     
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = FeedItemCell()
         let feedListItemViewModel = feedListItemViewModel[indexPath.row]
         cell.configure(with: feedListItemViewModel)
         return cell
     }
     
-    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let feedListItemViewModel = feedListItemViewModel[indexPath.row]
         feedListItemViewModel.didCancelImageRequest()
     }
