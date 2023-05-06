@@ -23,13 +23,14 @@ public final class FeedViewController: UIViewController {
     }
     
     public var refreshControl: UIRefreshControl?
-    public var feedListItemViewModel = [FeedListItemViewModel]() {
+    public var feedListItemViewModels = [FeedListItemViewModel]() {
         didSet {
             guaranteeMainThread { [weak self] in
                 self?.tableView.reloadData()
             }
         }
     }
+    private var loadingGifViewModels = [IndexPath: FeedListItemViewModel]()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,40 +74,48 @@ public final class FeedViewController: UIViewController {
         
         viewModel?.items.subscribe(listner: { [weak self] feedItems in
             guard let self = self else { return }
-            feedListItemViewModel = feedItems
+            loadingGifViewModels = [:]
+            feedListItemViewModels = feedItems
         })
     }
 }
 
 extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        feedListItemViewModel.count
+        feedListItemViewModels.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FeedItemCell") as! FeedItemCell
-        let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-        cell.configure(with: feedListItemViewModel)
+        cell.configure(with: listViewModel(for: indexPath))
         return cell
     }
     
     public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-        feedListItemViewModel.didCancelImageRequest()
+        cancelGifRequestLoad(for: indexPath)
     }
     
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-            feedListItemViewModel.didRequestGif()
+            listViewModel(for: indexPath).didRequestGif()
         }
     }
     
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let feedListItemViewModel = feedListItemViewModel[indexPath.row]
-            feedListItemViewModel.didCancelImageRequest()
+            cancelGifRequestLoad(for: indexPath)
         }
+    }
+    
+    private func listViewModel(for indexPath: IndexPath) -> FeedListItemViewModel {
+        let viewModel = feedListItemViewModels[indexPath.row]
+        loadingGifViewModels[indexPath] = viewModel
+        return viewModel
+    }
+    
+    private func cancelGifRequestLoad(for indexPath: IndexPath) {
+        loadingGifViewModels[indexPath]?.didCancelGifRequest()
+        loadingGifViewModels[indexPath] = nil
     }
 }
     

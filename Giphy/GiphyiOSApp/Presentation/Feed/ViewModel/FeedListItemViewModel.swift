@@ -61,7 +61,7 @@ public class FeedListItemViewModel {
         })
     }
     
-    public func didCancelImageRequest() {
+    public func didCancelGifRequest() {
         gifDataRepositoryCancallable?.cancel()
         gifDataRepositoryCancallable = nil
     }

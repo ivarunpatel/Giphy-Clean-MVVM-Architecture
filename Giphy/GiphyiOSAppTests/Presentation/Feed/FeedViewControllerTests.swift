@@ -313,3 +313,14 @@ extension UIRefreshControl {
         }
     }
 }
+
+struct SomeServiceStub {
+    var stub: Feed?
+    func getFeed() async throws -> Feed {
+        if let stub = stub {
+            return stub
+        } else {
+            throw NetworkError.unknown
+        }
+    }
+}
