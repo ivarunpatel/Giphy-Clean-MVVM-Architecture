@@ -15,7 +15,7 @@ final class TrendingUseCaseTests: XCTestCase {
         
         let expectedResult = FeedPage(totalCount: 20, count: 10, offset: 0, giphy: [Feed(id: "1", title: "title", datetime: "any time", images: FeedImages(original: FeedImageMetadata(height: "500", width: "500", url: anyURL()), small: FeedImageMetadata(height: "100", width: "100", url: anyURL())), user: FeedUser(username: "test", displayName: "test_name"))])
         
-        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10)
+        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10, offset: 0)
         expect(sut: sut, requestValue: requestValue, toCompleteWith: .success(expectedResult)) {
             repository.complete(with: expectedResult)
         }
@@ -25,7 +25,7 @@ final class TrendingUseCaseTests: XCTestCase {
         let (sut, repository) = makeSUT()
         let expectedError = anyNSError()
         
-        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10)
+        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 10, offset: 0)
         expect(sut: sut, requestValue: requestValue, toCompleteWith: .failure(expectedError)) {
             repository.complete(with: expectedError)
         }
@@ -65,7 +65,7 @@ final class TrendingUseCaseTests: XCTestCase {
     final class TrendingRepositorySpy: TrendingRepository {
         private var receivedMessages = [(TrendingRepository.Result) -> Void]()
         
-        func fetchTrendingGiphyList(limit: Int, completion: @escaping (TrendingRepository.Result) -> Void) -> Cancellable? {
+        func fetchTrendingGiphyList(limit: Int, offset: Int, completion: @escaping (TrendingRepository.Result) -> Void) -> Cancellable? {
             receivedMessages.append(completion)
             return nil
         }

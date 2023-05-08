@@ -15,11 +15,11 @@ public final class TrendingRepositoryLoader: TrendingRepository {
         self.dataTransferService = dataTransferService
     }
     
-    public func fetchTrendingGiphyList(limit: Int, completion: @escaping (TrendingRepository.Result) -> Void) -> Cancellable? {
+    public func fetchTrendingGiphyList(limit: Int, offset: Int, completion: @escaping (TrendingRepository.Result) -> Void) -> Cancellable? {
         let task = RepositoryTask()
         
 
-        let endpoint = Endpoint<FeedResponseDTO>(path: "/v1/gifs/trending", method: .get, queryParameters: ["limit": limit, "rating": "g"])
+        let endpoint = Endpoint<FeedResponseDTO>(path: "/v1/gifs/trending", method: .get, queryParameters: ["limit": limit, "offset": offset, "rating": "g"])
         task.networkTask =  dataTransferService.request(with: endpoint) { result in
             switch result {
             case .success(let responseModel):

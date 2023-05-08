@@ -9,5 +9,5 @@ import Foundation
 
 public protocol TrendingRepository {
     typealias Result = Swift.Result<FeedPage, Error>
-    func fetchTrendingGiphyList(limit: Int, completion: @escaping (Result) -> Void) -> Cancellable?
+    func fetchTrendingGiphyList(limit: Int, offset: Int, completion: @escaping (Result) -> Void) -> Cancellable?
 }

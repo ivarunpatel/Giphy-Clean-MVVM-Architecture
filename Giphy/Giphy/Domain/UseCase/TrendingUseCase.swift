@@ -20,7 +20,7 @@ public final class TrendingUseCaseLoader: TrendingUseCase {
     }
     
     public func execute(requestValue: TrendingGiphyUseCaseRequestValue, completion: @escaping (Result<FeedPage, Error>) -> Void) -> Cancellable? {
-        return trendingGiphyRepository.fetchTrendingGiphyList(limit: requestValue.limit) { result in
+        return trendingGiphyRepository.fetchTrendingGiphyList(limit: requestValue.limit, offset: requestValue.offset) { result in
             switch result {
             case .success(let giphyPage):
                 completion(.success(giphyPage))
@@ -33,8 +33,10 @@ public final class TrendingUseCaseLoader: TrendingUseCase {
 
 public struct TrendingGiphyUseCaseRequestValue {
     let limit: Int
+    let offset: Int
     
-    public init(limit: Int) {
+    public init(limit: Int, offset: Int) {
         self.limit = limit
+        self.offset = offset
     }
 }

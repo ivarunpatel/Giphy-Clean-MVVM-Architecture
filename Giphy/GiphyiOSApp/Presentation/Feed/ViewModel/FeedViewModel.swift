@@ -46,13 +46,22 @@ final public class FeedViewModel: FeedViewModellable {
     private var count = 0
     private var offSet = 0
     private var hasMorePage: Bool {
-        (count + offSet) < totalCount
+        count <= totalCount
+    }
+    private var nextPage: Int {
+        if hasMorePage && count == 0 {
+            return 0
+        } else if hasMorePage && count > 0 {
+            return offSet + parPageItem
+        } else {
+            return offSet
+        }
     }
     private var pages: [FeedPage] = []
     
     private func loadFeed(state: FeedViewModelState) {
         self.state.value = state
-        _ = useCase.execute(requestValue: .init(limit: parPageItem)) { [weak self] result in
+        _ = useCase.execute(requestValue: .init(limit: parPageItem, offset: nextPage)) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let feedPage):
@@ -95,6 +104,7 @@ extension FeedViewModel {
     }
     
     public func didLoadNextPage() {
+        guard hasMorePage else { return }
         loadFeed(state: .nextPage)
     }
     

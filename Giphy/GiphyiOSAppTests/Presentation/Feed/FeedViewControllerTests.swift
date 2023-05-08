@@ -91,8 +91,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_feedItemCell_displaySuccessfullyLoadedGif() {
         let feedItem1 = makeItem()
         let feedItem2 = makeItem()
-        
-        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 2, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
         sut.loadViewIfNeeded()
@@ -124,7 +123,7 @@ final class FeedViewControllerTests: XCTestCase {
         let feedItem1 = makeItem()
         let feedItem2 = makeItem()
         
-        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 2, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
         sut.loadViewIfNeeded()
@@ -146,7 +145,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_feedItemCell_loadGifURLWhenVisible() {
         let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
-        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 2, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
         
@@ -166,7 +165,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_feedItemCell_cancelsGifLoadingWhenNotVisibleAnymore() {
         let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
-        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 2, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
         
@@ -185,7 +184,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_feedItemCell_preloadsGifURLWhenNearVisible() {
         let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
-        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 2, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
         
@@ -204,7 +203,7 @@ final class FeedViewControllerTests: XCTestCase {
     func test_feedItemCell_cancelPreloadingGifURLWhenNotNearVisible() {
         let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
-        let feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        let feedPage = FeedPage(totalCount: 2, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
         
         let (sut, useCase, gifDataRepository) = makeSUT()
         
@@ -218,6 +217,27 @@ final class FeedViewControllerTests: XCTestCase {
         
         sut.simulateFeedCellNotNearVisible(at: 1)
         XCTAssertEqual(gifDataRepository.cancelledGifURLs, [feedItem1.images.small.url, feedItem2.images.small.url], "Expected two gif URL request once second feeditemcell is not near visible")
+    }
+    
+    func test_feedItemCell_shouldLoadNextPageWhenLastItemIsNearToVisible() {
+        let feedItem1 = makeItem()
+        let feedItem2 = makeItem()
+        var feedPage = FeedPage(totalCount: 3, count: 2, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, _) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        useCase.complete(with: feedPage)
+        
+        sut.simlateFeedCellIsNearToVisible(at: 1)
+        
+        let feedItem3 = makeItem()
+        feedPage = FeedPage(totalCount: 3, count: 1, offset: 1, giphy: [feedItem3])
+        
+        useCase.complete(with: feedPage)
+        
+        XCTAssertEqual(sut.numberOfRenderedFeedViews(), 3)
     }
     
     // MARK: - Helpers
@@ -356,6 +376,14 @@ extension FeedViewController {
         let prefetchDataSource = tableView.prefetchDataSource
         let indexPath = IndexPath(row: row, section: feedViewSection)
         prefetchDataSource?.tableView?(tableView, cancelPrefetchingForRowsAt: [indexPath])
+    }
+    
+    func simlateFeedCellIsNearToVisible(at row: Int) {
+        let cell = feedCell(at: row)
+
+        let delegate = tableView.delegate
+        let indexPath = IndexPath(row: row, section: feedViewSection)
+        delegate?.tableView?(tableView, willDisplay: cell!, forRowAt: indexPath)
     }
     
     func feedCell(at row: Int) -> FeedItemCell? {

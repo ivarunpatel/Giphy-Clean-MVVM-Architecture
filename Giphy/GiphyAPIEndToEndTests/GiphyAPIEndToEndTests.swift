@@ -38,7 +38,7 @@ final class GiphyAPIEndToEndTests: XCTestCase {
     
     private func getResult() -> Result<FeedPage, Error> {
         let sut = makeSUT()
-        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 2)
+        let requestValue = TrendingGiphyUseCaseRequestValue(limit: 2, offset: 0)
         
         let expectation = expectation(description: "Waiting for completion")
         var receivedResult: Result<FeedPage, Error>!

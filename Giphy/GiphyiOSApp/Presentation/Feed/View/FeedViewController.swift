@@ -91,6 +91,12 @@ extension FeedViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         return cell
     }
     
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == feedListItemViewModels.count - 1 {
+            viewModel?.didLoadNextPage()
+        }
+    }
+    
     public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         cancelGifRequestLoad(for: indexPath)
     }
