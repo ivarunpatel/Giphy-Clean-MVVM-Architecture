@@ -240,6 +240,23 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.numberOfRenderedFeedViews(), 3)
     }
     
+    func test_feedItemCell_doesNotRenderLoadedGifWhenNotVisibleAnymore() {
+        let feedItem = makeItem()
+        let feedPage = FeedPage(totalCount: 3, count: 2, offset: 0, giphy: [feedItem])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        useCase.complete(with: feedPage)
+        let feedItemCell = sut.simulateFeedCellNotVisible(at: 0)
+        
+        let gifData = try? Data(contentsOf: URL(string: "https://media2.giphy.com/media/OHq7yCqf9H1mR9LinC/100w.gif?cid=a73e0a9df6psn43cpb0bqspv0wfl9qs0x22k2kizl0k7fqa2&ep=v1_gifs_trending&rid=100w.gif&ct=g")!)
+        gifDataRepository.complete(with: gifData!)
+        
+        XCTAssertNil(feedItemCell?.feedImageView.image, "Expected no rendered gif when gif loading completed after FeedItemCell is not visible anymore")
+    }
+    
     // MARK: - Helpers
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (viewController: FeedViewController, useCase: TrendingUseCaseSpy, gifDataRepository: GifDataRepositorySpy) {
         let useCase = TrendingUseCaseSpy()
