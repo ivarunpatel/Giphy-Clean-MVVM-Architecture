@@ -99,6 +99,7 @@ final class FeedViewControllerTests: XCTestCase {
         assertThat(sut, isRendering: [])
         
         useCase.complete(with: feedPage, at: 0)
+        
         let firstFeedItemCell = sut.feedCell(at: 0)
         XCTAssertNil(firstFeedItemCell?.feedImageView.image, "Expected no gif untill first GIF URL request does not complete successfully")
         
@@ -117,6 +118,29 @@ final class FeedViewControllerTests: XCTestCase {
         
         let secondGif = UIImage.gifImageWithData(secondGifData!)
         XCTAssertEqual(secondFeedItemCell?.feedImageView.image?.pngData(), secondGif?.pngData(), "Expected second gif loaded successfully")
+    }
+    
+    func test_feedItemCell_doesNotDisplayGifOnFailedGifLoading() {
+        let feedItem1 = makeItem()
+        let feedItem2 = makeItem()
+        
+        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        sut.loadViewIfNeeded()
+        assertThat(sut, isRendering: [])
+        
+        useCase.complete(with: feedPage, at: 0)
+        
+        let firstFeedItemCell = sut.feedCell(at: 0)
+        
+        gifDataRepository.complete(with: anyNSError(), at: 0)
+        XCTAssertNil(firstFeedItemCell?.feedImageView.image, "Expected no gif when first GIF URL request completes with error")
+        
+        let secondFeedItemCell = sut.feedCell(at: 1)
+        
+        gifDataRepository.complete(with: anyNSError(), at: 1)
+        XCTAssertNil(secondFeedItemCell?.feedImageView.image, "Expected no gif when second GIF URL request completes with error")
     }
     
     func test_feedItemCell_loadGifURLWhenVisible() {
@@ -277,6 +301,10 @@ final class FeedViewControllerTests: XCTestCase {
         
         func complete(with data: Data, at index: Int = 0) {
             receivedMessages[index].completion(.success(data))
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            receivedMessages[index].completion(.failure(error))
         }
         
         private struct CancellableSpy: Cancellable {
