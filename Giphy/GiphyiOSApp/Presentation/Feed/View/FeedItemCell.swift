@@ -35,7 +35,7 @@ final public class FeedItemCell: UITableViewCell {
         model.gifData = { data in
             guaranteeMainThread { [weak self] in
                 guard let self = self else { return }
-                feedImageView.image = UIImage.gifImageWithData(data)
+                feedImageView.image = UIImage.gif(data: data)
             }
         }
     }
