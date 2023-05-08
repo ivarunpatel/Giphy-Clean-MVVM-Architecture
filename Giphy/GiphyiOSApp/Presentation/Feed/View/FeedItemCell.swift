@@ -18,6 +18,10 @@ final public class FeedItemCell: UITableViewCell {
         setupUI()
     }
     
+    public override func prepareForReuse() {
+        feedImageView.image = nil
+    }
+    
     private func setupUI() {
         feedImageView.layer.cornerRadius = 10
     }
@@ -27,5 +31,12 @@ final public class FeedItemCell: UITableViewCell {
         titleLabel.text = model.title
         aurthorNameLabel.text = model.aurthorName
         model.didRequestGif()
+        
+        model.gifData = { data in
+            guaranteeMainThread { [weak self] in
+                guard let self = self else { return }
+                feedImageView.image = UIImage.gifImageWithData(data)
+            }
+        }
     }
 }

@@ -88,6 +88,37 @@ final class FeedViewControllerTests: XCTestCase {
         assertThat(sut, isRendering: [])
     }
     
+    func test_feedItemCell_displaySuccessfullyLoadedGif() {
+        let feedItem1 = makeItem()
+        let feedItem2 = makeItem()
+        
+        var feedPage = FeedPage(totalCount: 3, count: 3, offset: 0, giphy: [feedItem1, feedItem2])
+        
+        let (sut, useCase, gifDataRepository) = makeSUT()
+        sut.loadViewIfNeeded()
+        assertThat(sut, isRendering: [])
+        
+        useCase.complete(with: feedPage, at: 0)
+        let firstFeedItemCell = sut.feedCell(at: 0)
+        XCTAssertNil(firstFeedItemCell?.feedImageView.image, "Expected no gif untill first GIF URL request does not complete successfully")
+        
+        let firstGifData = try? Data(contentsOf: URL(string: "https://media2.giphy.com/media/OHq7yCqf9H1mR9LinC/100w.gif?cid=a73e0a9df6psn43cpb0bqspv0wfl9qs0x22k2kizl0k7fqa2&ep=v1_gifs_trending&rid=100w.gif&ct=g")!)
+        gifDataRepository.complete(with: firstGifData!, at: 0)
+        
+        let firstGif = UIImage.gifImageWithData(firstGifData!)
+        XCTAssertEqual(firstFeedItemCell?.feedImageView.image?.pngData(), firstGif?.pngData(), "Expected first gif loaded successfully")
+        
+        
+        let secondFeedItemCell = sut.feedCell(at: 1)
+        XCTAssertNil(secondFeedItemCell?.feedImageView.image, "Expected no gif untill second GIF URL request does not complete successfully")
+        
+        let secondGifData = try? Data(contentsOf: URL(string: "https://media1.giphy.com/media/DsIiN6pX74mlhmNjeZ/100w.gif?cid=a73e0a9df6psn43cpb0bqspv0wfl9qs0x22k2kizl0k7fqa2&ep=v1_gifs_trending&rid=100w.gif&ct=g")!)
+        gifDataRepository.complete(with: secondGifData!, at: 1)
+        
+        let secondGif = UIImage.gifImageWithData(secondGifData!)
+        XCTAssertEqual(secondFeedItemCell?.feedImageView.image?.pngData(), secondGif?.pngData(), "Expected second gif loaded successfully")
+    }
+    
     func test_feedItemCell_loadGifURLWhenVisible() {
         let feedItem1 = makeItem(smallImageURL: URL(string: "http://url-0-1.com")!)
         let feedItem2 = makeItem(smallImageURL: URL(string: "http://url-1-1.com")!)
@@ -231,14 +262,21 @@ final class FeedViewControllerTests: XCTestCase {
     }
     
     private class GifDataRepositorySpy: GifDataRepository {
-        var loadedGifURLs = [URL]()
+        var receivedMessages = [(url: String, completion: (GifDataRepository.Result) -> Void)]()
+        var loadedGifURLs: [URL] {
+            receivedMessages.map { URL(string: $0.url)! }
+        }
         var cancelledGifURLs = [URL]()
         
         func fetchGif(url: String, completion: @escaping (GifDataRepository.Result) -> Void) -> Cancellable? {
-            loadedGifURLs.append(URL(string: url)!)
+            receivedMessages.append((url, completion))
             return CancellableSpy { [weak self] in
                 self?.cancelledGifURLs.append(URL(string: url)!)
             }
+        }
+        
+        func complete(with data: Data, at index: Int = 0) {
+            receivedMessages[index].completion(.success(data))
         }
         
         private struct CancellableSpy: Cancellable {

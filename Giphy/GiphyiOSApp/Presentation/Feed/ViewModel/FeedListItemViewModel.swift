@@ -15,6 +15,7 @@ public class FeedListItemViewModel {
     public private(set) var trendingDateTime: String?
     public let images: FeedImages
     public private(set) var aurthorName: String?
+    public var gifData: ((Data) -> Void)?
     
     public init(feed: Feed, gifDataRepository: GifDataRepository) {
         self.gifDataRepository = gifDataRepository
@@ -56,14 +57,18 @@ public class FeedListItemViewModel {
     
     public func didRequestGif() {
         let gifURL = images.small.url
-        gifDataRepositoryCancallable = gifDataRepository.fetchGif(url: gifURL.absoluteString, completion: { result in
-            
+        gifDataRepositoryCancallable = gifDataRepository.fetchGif(url: gifURL.absoluteString, completion: { [weak self] result in
+            guard let self = self else { return }
+            if let data = try? result.get() {
+                gifData?(data)
+            }
         })
     }
     
     public func didCancelGifRequest() {
         gifDataRepositoryCancallable?.cancel()
         gifDataRepositoryCancallable = nil
+        gifData = nil
     }
 }
 
